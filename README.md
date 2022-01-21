@@ -43,6 +43,9 @@ On the top and bottom of each of these screenshots you can see the ticker and th
 ![Conway's Game of Life](screenshots/4.png "Conway's Game of Life")
 ![Weather](screenshots/5.png "Weather")
 
+Multiple widgets on the top and bottom:
+
+![Multiple Widgets](screenshots/6.png "Multiple Widgets")
 # Requirements
 - python3
 - (optional) yfinance python3 module
@@ -124,6 +127,23 @@ Reboot
 ````commandline
 reboot
 ````
+
+# Instructions for adding multiple widgets on the top and bottom (e.g., Ticker)
+1) Copy the plugin folder to a new name
+````commandline
+cp ./pidisplay/plugins/ticker ./pidisplay/plugins/ticker2
+````
+2) Edit the \_\_init.py__ file in the second ticker with a new name and update the modules
+
+```commandline
+NAME = "Ticker2"
+```
+````commandline
+from plugins.ticker2 import ticker as g
+from plugins.ticker2 import ticker_config as c
+````
+(Note: change the "ticker2" above to the same name of the plugin directory from step 1)
+
 # TODO
 
 - Add moon phase to weather
