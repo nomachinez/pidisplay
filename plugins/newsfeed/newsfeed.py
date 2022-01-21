@@ -1,5 +1,5 @@
 """
-OpenWeatherMap Forecast
+Newsfeed
 (c) Steven Babineau - babineau@gmail.com
 2022
 """

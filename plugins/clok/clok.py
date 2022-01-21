@@ -1,5 +1,5 @@
 """
-Conways Game of Life
+Clok
 (c) Steven Babineau - babineau@gmail.com
 2022
 """
