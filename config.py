@@ -2,7 +2,7 @@
 CONFIG = {
     "debug": False,
 
-    "fullscreen_mode": False,
+    "fullscreen_mode": True,
     # If FULLSCREEN_MODE = True, should we use the current resolution or the resolution defined below?
     "fullscreen_uses_current_resolution": True,
 
