@@ -1,6 +1,6 @@
 """ All globals go here """
 CONFIG = {
-    "tickers": ["msft", "goog", "ETH-USD", "BTC-USD", "ADA-USD"],
+    "tickers": ["msft", "goog"],
     "update_interval": 15,  # Minutes
     # The higher, the faster the scroll. Also, make this negative to scroll right or positive to scroll left
     "speed": 2,

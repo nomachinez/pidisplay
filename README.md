@@ -124,7 +124,7 @@ Reboot
 ````commandline
 reboot
 ````
-# TODO:
+# TODO
 
 - Add moon phase to weather
 - Fix the paddles in the pongclock. The paddles track the ball correctly only about 90% of the time.

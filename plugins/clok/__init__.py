@@ -5,7 +5,6 @@ import helper
 NAME = "Clok"
 TYPE = helper.WIDGET
 LOCATION = helper.WIDGET_LOCATION_BOTTOM
-NEED_FLIP = True
 ENABLED = True
 
 
@@ -15,10 +14,6 @@ def get_instance(config, canvas):
 
 def get_location():
     return LOCATION
-
-
-def need_flip():
-    return NEED_FLIP
 
 
 def get_type():

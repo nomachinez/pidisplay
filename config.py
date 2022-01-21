@@ -11,7 +11,7 @@ CONFIG = {
     # If you want PiDisplay to start on a specific plugin, add the NAME here (from __init__.py)
     # If this is empty then it will start at whichever was the first plugin loaded
     # You will get an error if this is set wrong
-    "start_plugin": "NewsFeed",
+    "start_plugin": "PongClock",
 
     "screen_width": 1024,  # 1360,
     "screen_height": 600,  # 768,
@@ -31,7 +31,7 @@ CONFIG = {
     "frames_per_second": 30,
 
     "screenshot_dir": "./screenshots/",
-    "take_screenshots": False,
+    "take_screenshots": True,
 
     "doubleclick_delay": 400,
 }

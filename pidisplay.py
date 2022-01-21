@@ -12,7 +12,7 @@ import importlib
 import datetime
 import pygame
 
-import config as c
+import config as piconfig
 import helper
 
 
@@ -23,7 +23,7 @@ def main():
     pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN])
 
     clock = pygame.time.Clock()
-    config = c.CONFIG
+    config = piconfig.CONFIG
 
     if pygame.version.vernum[0] == 2:
         helper.log(config, "Running with pygame 2.X options.")
@@ -80,28 +80,35 @@ def main():
         config["autoswitch_timer"] = sys.maxsize
     start_time = time.time()
 
-    widget_plugins = []
-    top_bar_canvas = None
-    bottom_bar_canvas = None
+    top_widget_plugins = []
+    top_bar_canvases = []
+    bottom_widget_plugins = []
+    bottom_bar_canvases = []
+
+    top_bar_height = 0
+    bottom_bar_height = 0
 
     for i in range(len(plugins)):
         if plugins[i].get_type() == helper.WIDGET:
             if plugins[i].get_location() == helper.WIDGET_LOCATION_TOP:
-                if top_bar_canvas is None:
-                    top_bar_canvas = canvas.subsurface(
-                        pygame.Rect(0, 0, canvas.get_width(), c.CONFIG["top_bar_height"]))
-                widget_plugins.append({"location": plugins[i].get_location(),
-                                       "instance": plugins[i].get_instance(config, top_bar_canvas)})
-            elif plugins[i].get_location() == helper.WIDGET_LOCATION_BOTTOM:
-                if bottom_bar_canvas is None:
-                    bottom_bar_canvas = canvas.subsurface(
-                        pygame.Rect(0, canvas.get_height() - c.CONFIG["bottom_bar_height"],
-                                    canvas.get_width(), c.CONFIG["bottom_bar_height"]))
-                widget_plugins.append({"location": plugins[i].get_location(),
-                                       "instance": plugins[i].get_instance(config, bottom_bar_canvas)})
+                top_bar_canvas = canvas.subsurface(pygame.Rect(0, top_bar_height, canvas.get_width(), config["top_bar_height"]))
 
-    top_offset = top_bar_canvas.get_height() if top_bar_canvas is not None else 0
-    bottom_offset = bottom_bar_canvas.get_height() if bottom_bar_canvas is not None else 0
+                top_widget_plugins.append({"location": plugins[i].get_location(), "instance": plugins[i].get_instance(config, top_bar_canvas)})
+                top_bar_height += config["top_bar_height"]
+                top_bar_canvases.append(top_bar_canvas)
+
+            elif plugins[i].get_location() == helper.WIDGET_LOCATION_BOTTOM:
+                bottom_bar_height += config["bottom_bar_height"]
+                print("{},{} = {},{},{},{}".format(canvas.get_width(), canvas.get_height(),
+                                                   0, canvas.get_height() - bottom_bar_height, canvas.get_width(), config["bottom_bar_height"]))
+
+                bottom_bar_canvas = canvas.subsurface(pygame.Rect(0, canvas.get_height() - bottom_bar_height, canvas.get_width(), config["bottom_bar_height"]))
+
+                bottom_widget_plugins.append({"location": plugins[i].get_location(), "instance": plugins[i].get_instance(config, bottom_bar_canvas)})
+                bottom_bar_canvases.append(bottom_bar_canvas)
+
+    top_offset = len(top_bar_canvases) * config["top_bar_height"]  # top_bar_canvas.get_height() if top_bar_canvas is not None else 0
+    bottom_offset = len(bottom_bar_canvases) * config["bottom_bar_height"]  # bottom_bar_canvas.get_height() if bottom_bar_canvas is not None else 0
 
     full_screen_rect = pygame.Rect(0, top_offset, canvas.get_width(), canvas.get_height() - top_offset - bottom_offset)
     full_screen_canvas = canvas.subsurface(full_screen_rect)
@@ -118,11 +125,10 @@ def main():
         if update:
             full_screen_plugin.update(tick, full_screen_canvas)
 
-            for i in widget_plugins:
-                if i["location"] == helper.WIDGET_LOCATION_TOP:
-                    i["instance"].update(tick, top_bar_canvas)
-                elif i["location"] == helper.WIDGET_LOCATION_BOTTOM:
-                    i["instance"].update(tick, bottom_bar_canvas)
+            for i in range(len(top_widget_plugins)):
+                top_widget_plugins[i]["instance"].update(tick, top_bar_canvases[i])
+            for i in range(len(bottom_widget_plugins)):
+                bottom_widget_plugins[i]["instance"].update(tick, bottom_bar_canvases[i])
 
             if tick == fps:
                 tick = 1
