@@ -25,6 +25,14 @@ So, what can I do with all this?  I know!  Wouldn't it be great if I had a fancy
 PiDisplay is an application (writted in python) that give you a slideshow of neat things you may want to display on a small screen that sits on your desk or hung on a wall.
 
 ---
+# Screenshots
+On the top and bottom of each of these screenshots you can see the ticker and the clok.
+
+![Newsfeed](screenshots/1.png "Newsfeed")
+![Picture Viewer](screenshots/2.png "Picture Viewer")
+![PongClock](screenshots/3.png "PongClock")
+![Conway's Game of Life](screenshots/4.png "Conway's Game of Life")
+![Weather](screenshots/5.png "Weather")
 
 # Installation
 1) Log into your Rasberry Pi console.
