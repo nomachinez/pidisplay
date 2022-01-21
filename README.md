@@ -18,11 +18,11 @@ So, what can I do with all this?  I know!  Wouldn't it be great if I had a fancy
 - Stock ticker
 - Clok widget
 
-...and all this in an easily customizable, extensible, modular format that allows other developers to easily extend it with thier own ideas?  Oh thats such a neat idea...
+...and all this in an easily customizable, extensible, modular format that allows other developers to easily extend it with their own ideas?  Oh, such a neat idea...
 
 ---
 
-PiDisplay is an application (writted in python) that give you a slideshow of neat things you may want to display on a small screen that sits on your desk or hung on a wall.
+PiDisplay is an application (written in python) that gives you a slideshow of neat things you may want to display on a small screen that sits on your desk or hung on a wall.
 
 ---
 # Screenshots
@@ -35,16 +35,16 @@ On the top and bottom of each of these screenshots you can see the ticker and th
 ![Weather](screenshots/5.png "Weather")
 
 # Installation
-1) Log into your Rasberry Pi console.
+1) Log into your Raspberry Pi console.
 2) You may have to install git
 ````commandline
 sudo apt install git
 ````
 3) Clone this git repository
 ````commandline
-git clone https://github.com/nomachinez/PiDisplay.git
+git clone https://github.com/nomachinez/pidisplay.git
 ````
-4) Edit the \_\_init__.py files in each module directory to enable/disable any modules you want/dont want.  They are all enabled by default.
+4) Edit the \_\_init__.py files in each module directory to enable/disable any modules you want/don't want.  They are all enabled by default.
 ````commandline
 ./pidisplay/plugins/ticker/__init__.py
 ./pidisplay/plugins/newsfeed/__init__.py
@@ -68,8 +68,8 @@ ENABLED = False
 - __pidisplay/plugins/ticker/ticker_config.py__
   - Set the stock/crypto tickers to track
 - __pidisplay/plugins/newsfeed/newsfeed_config.py__
-  - Configure any RSS feeds you want. You can add as many as you want and it will show only the latest number (across all feeds) that will fit on your screen.
-  - If you configure a slack webhook url, when you click on a news article it will send you the link to your slack channel.  This is very useful if you find something you want to read and want to send the url to your phone or computer.
+  - Configure any RSS feeds you want. You can add as many as you want, and it will show only the latest number (across all feeds) that will fit on your screen.
+  - If you configure a Slack webhook url, when you click on a news article it will send you the link to your Slack channel.  This is very useful if you find something you want to read and want to send the url to your phone or computer.
 - __pidisplay/plugins/picture_viewer/picture_viewer_config.py__
   - Set the slideshow delay
   - Set your picture folder if you already have your pictures in another folder 
@@ -80,7 +80,7 @@ ENABLED = False
 - __pidisplay/plugins/gameoflife/gameoflife_config.py__
   - Nothing of note in here unless you want to mess around with the world size and colors.
 - __pidisplay/plugins/openweathermap_forecast/openweathermap_forecast_config.py__
-  - Enter your openweathermaps api key (sign up for a free account and configure a new application)
+  - Enter your openweathermap api key ([sign up for a free account](https://openweathermap.org/api) and configure a [new API key](https://home.openweathermap.org/api_keys))
   - Enter the longitude/latitude of the location for which you want to track weather.
 6) Install other python modules to support the plugins (required if you elect to use the respective module):
 ````commandline
@@ -95,4 +95,4 @@ python3 pidisplay/pidisplay.py
 # TODO:
 
 - Add moon phase to weather
-- Fix paddles in pong clock. The paddles track the ball correctly only about 90% of the time.
+- Fix the paddles in the pongclock. The paddles track the ball correctly only about 90% of the time.
