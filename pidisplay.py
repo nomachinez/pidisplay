@@ -4,10 +4,12 @@ PI Display
 2022
 """
 from __future__ import print_function
+
 import sys
 import os
 import time
 import importlib
+import datetime
 import pygame
 
 import config as c
@@ -195,6 +197,13 @@ def main():
 
         if time.time() - start_time > config["autoswitch_timer"]:
             # Switch plugins
+            if config["take_screenshots"]:
+                screenshot_file = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                               config["screenshot_dir"],
+                                                               "screenshot_{}.png".format(datetime.datetime.now().timestamp())))
+                pygame.image.save(canvas, screenshot_file)
+                helper.log(config, "Saved screenshot to {}".format(screenshot_file))
+
             current_plugin, tick, full_screen_plugin, start_time = switch_plugin(current_plugin, plugins,
                                                                                  full_screen_canvas, config,
                                                                                  full_screen_rect)

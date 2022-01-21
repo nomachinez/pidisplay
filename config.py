@@ -19,9 +19,9 @@ CONFIG = {
     "bottom_bar_height": 20,
 
     # Set in seconds, 0 means don't autoswitch
-    "autoswitch_timer": .5 * 60,
+    "autoswitch_timer": .25 * 60,
 
-    "application_sysfont": "Courier New",
+    "application_sysfont": "Segoe UI",
 
     "message_font_size": 40,
     "message_popup_fade_time": 2,  # seconds
@@ -29,6 +29,9 @@ CONFIG = {
 
     # Make sure this is an even number
     "frames_per_second": 30,
+
+    "screenshot_dir": "./screenshots/",
+    "take_screenshots": False,
 
     "doubleclick_delay": 400,
 }
