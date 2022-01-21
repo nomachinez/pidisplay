@@ -44,7 +44,7 @@ sudo apt install git
 ````commandline
 git clone https://github.com/nomachinez/pidisplay.git
 ````
-4) Edit the \_\_init__.py files in each module directory to enable/disable any modules you want/don't want.  They are all enabled by default.
+4) (Optional) Edit the \_\_init__.py files in each module directory to enable/disable any modules you want/don't want.  They are all enabled by default.
 ````commandline
 ./pidisplay/plugins/ticker/__init__.py
 ./pidisplay/plugins/newsfeed/__init__.py
@@ -59,7 +59,7 @@ To disable, set:
 ````commandline
 ENABLED = False
 ````
-5) Edit the config files (optional, but recommended). The settings in the configs are great for my [1360x768 7" screen](https://www.amazon.com/Eviciv-Portable-Monitor-Display-1024X600/dp/B07L6WT77H). You may want to adjust them if your screen is different.  There are many settings in here but the ones to look at first are:
+5) (Optional, but recommended) Edit the config files. The settings in the configs are great for my [1360x768 7" screen](https://www.amazon.com/Eviciv-Portable-Monitor-Display-1024X600/dp/B07L6WT77H). You may want to adjust them if your screen is different.  There are many settings in here but the ones to look at first are:
 - __pidisplay/config.py__ 
   - Set fullscreen/resolution
   - Set system font
