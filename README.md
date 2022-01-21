@@ -25,6 +25,13 @@ So, what can I do with all this?  I know!  Wouldn't it be great if I had a fancy
 PiDisplay is an application (written in python) that gives you a slideshow of neat things you may want to display on a small screen that sits on your desk or hung on a wall.
 
 ---
+# Features
+- All the modules listed above!
+- Double-tap/click on the screen to manually move to the next module
+- Newsfeed - tap/click on an article to send the link to a Slack channel
+- Conways Game of Life - tap/click on the screen to reset the world
+- Picture Viewer - tap/click on the screen to move to manually move to the next picture
+
 # Screenshots
 On the top and bottom of each of these screenshots you can see the ticker and the clok.
 
@@ -74,7 +81,7 @@ ENABLED = False
   - Set the stock/crypto tickers to track
 - __pidisplay/plugins/newsfeed/newsfeed_config.py__
   - Configure any RSS feeds you want. You can add as many as you want, and it will show only the latest number (across all feeds) that will fit on your screen.
-  - If you configure a Slack webhook url, when you click on a news article it will send you the link to your Slack channel.  This is very useful if you find something you want to read and want to send the url to your phone or computer.
+  - If you [configure a Slack webhook url](https://api.slack.com/messaging/webhooks), when you click on a news article it will send you the link to your Slack channel.  This is very useful if you find something you want to read and want to send the url to your phone or computer.
 - __pidisplay/plugins/picture_viewer/picture_viewer_config.py__
   - Set the slideshow delay
   - Set your picture folder if you already have your pictures in another folder 
