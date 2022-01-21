@@ -105,7 +105,25 @@ sudo pip3 install feedparser  # for the news module
 ````commandline
 python3 pidisplay/pidisplay.py
 ````
+8) (Optional) Configure your Raspberry Pi to log in automatically and automatically start PiDisplay
+```commandline
+sudo raspi-config
+```
+   * Choose option "1 System Options"
+   * Choose option "2 S5 Boot / Auto Login"
+   * Choose option "B2 Console Autologin"
+   * Choose "\<Finish>"
+   * Don't reboot yet.
 
+Now add the startup to your .bashrc
+````commandline
+echo python3 ~/pidisplay/pidisplay.py >> /home/pi/.bashrc
+````
+
+Reboot
+````commandline
+reboot
+````
 # TODO:
 
 - Add moon phase to weather
