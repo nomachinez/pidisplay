@@ -31,7 +31,7 @@ CONFIG = {
     "frames_per_second": 30,
 
     "screenshot_dir": "./screenshots/",
-    "take_screenshots": True,
+    "take_screenshots": False,
 
     "doubleclick_delay": 400,
 }
