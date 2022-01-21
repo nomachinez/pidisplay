@@ -88,4 +88,3 @@ python3 pidisplay/pidisplay.py
 
 - Add moon phase to weather
 - Fix paddles in pong clock. The paddles track the ball correctly only about 90% of the time.
-
