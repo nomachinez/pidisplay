@@ -34,6 +34,11 @@ On the top and bottom of each of these screenshots you can see the ticker and th
 ![Conway's Game of Life](screenshots/4.png "Conway's Game of Life")
 ![Weather](screenshots/5.png "Weather")
 
+# Requirements
+- python3
+- (optional) yfinance python3 module
+- (optional) feedparser python3 module
+
 # Installation
 1) Log into your Raspberry Pi console.
 2) You may have to install git
