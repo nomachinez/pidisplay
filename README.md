@@ -31,6 +31,8 @@ PiDisplay is an application (written in python) that gives you a slideshow of ne
 - Newsfeed - tap/click on an article to send the link to a Slack channel
 - Conways Game of Life - tap/click on the screen to reset the world
 - Picture Viewer - tap/click on the screen to move to manually move to the next picture
+- Enable/Disable individual modules/plugins
+- Easy to extend with other modules (use the Clok module for an example widget and the GameOfLife module for an example full screen module)
 
 # Screenshots
 On the top and bottom of each of these screenshots you can see the ticker and the clok.
