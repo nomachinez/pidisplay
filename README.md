@@ -8,7 +8,7 @@ I have a Raspberry Pi on my desk, that is in front of my chair.
 
 I have a 7" screen attached to my Raspberry Pi, that sits on my desk, that is in front of my chair.
 
-So, what can I do with all this?  I know!  Wouldn't it be great if I could make a fancy desk ornament that displays a rotating list of fun gadgets like:
+So, what can I do with all this?  I know!  Wouldn't it be great if I had a fancy desk ornament that displays a rotating list of fun gadgets like:
 
 - PongClock (a game of Pong that plays itself, but keeps time with the score)
 - Picture slideshow
