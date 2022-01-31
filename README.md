@@ -64,35 +64,35 @@ Multiple widgets on the top and bottom (that can be independently turned on and 
 # Requirements
 - python3
 - various python3 modules:
-  - **pygame** should already be included on your system but is required to run PiDisplay at all
   - **pillow** is for the Picture Viewer and Now Playing plugins
   - **spotipy** is for the Now Playing and Now Playing Ticker plugins
   - **feedparser** is for the News Feed plugin
   - **requests** is for the Ticker, Pi-Hole, News Feed, Now Playing, System Info and OpenWeather Maps plugins. Probably already included on your system.
   - **yfinance** is for the Ticker plugin
     - **numpy** yfinance requires this and is known to give Raspberry Pi folks trouble during installation. 
+- python3 pygame module and pygame's SDL2 bindings
 
 # Installation
-1) Log into your Raspberry Pi console.
-2) You may have to install git
+1. Log into your Raspberry Pi console.
+2. You may have to install git
 ````commandline
 sudo apt install git
 ````
-3) Clone this git repository
+3. Clone this git repository
 ````commandline
 git clone https://github.com/nomachinez/pidisplay.git
 ````
-4) Edit the ./pidisplay/config.ini file to your liking.  Some notes about the config.ini file(s):
-   1) All settings in each of the plugins can be overridden in the main config.ini file.
-   2) Take a look at the config.ini file in each plugin directory for all the options available to you for each plugin.
-   3) Some plugins (e.g., openweathermap, nowplaying) require you to enter an api key or client id/username, which should be entered in the ./pidisplay/config.ini file.
-   4) Any widgets need a widget_location = top or widget_location = bottom in the main config.ini file for it to show up.
-   5) Plugins will be loaded and cycled through in the order present in the main config.ini file.
-   6) If you want a particular plugin to stay on the screen longer/shorter than the default "autoswitch_timer" value, enter autoswitch_timer = # in the section for that plugin with the number of seconds you want.
-   7) You can load a plugin multiple times by adding it multiple times in the main config file. Just make sure to name it something different. The options can be managed seperately as well (e.g., 2 tickers with different symbols and speeds)
-   8) To disable a plugin, remove it or comment it out in the main config.ini file.
+4. Edit the ./pidisplay/config.ini file to your liking.  Some notes about the config.ini file(s):
+   * All settings in each of the plugins can be overridden in the main config.ini file.
+   * Take a look at the config.ini file in each plugin directory for all the options available to you for each plugin.
+   * Some plugins (e.g., openweathermap, nowplaying) require you to enter an api key or client id/username, which should be entered in the ./pidisplay/config.ini file.
+   * Any widgets need a widget_location = top or widget_location = bottom in the main config.ini file for it to show up.
+   * Plugins will be loaded and cycled through in the order present in the main config.ini file.
+   * If you want a particular plugin to stay on the screen longer/shorter than the default "autoswitch_timer" value, enter autoswitch_timer = # in the section for that plugin with the number of seconds you want.
+   * You can load a plugin multiple times by adding it multiple times in the main config file. Just make sure to name it something different. The options can be managed seperately as well (e.g., 2 tickers with different symbols and speeds)
+   * To disable a plugin, remove it or comment it out in the main config.ini file.
 
-5) The settings in the main config.ini file are great for me and my [1360x768 7" screen](https://www.amazon.com/Eviciv-Portable-Monitor-Display-1024X600/dp/B07L6WT77H). You may want to adjust them if your screen is different.  There are many settings that can be overriden in here but the ones to look at first are:
+5. The settings in the main config.ini file are great for me and my [1360x768 7" screen](https://www.amazon.com/Eviciv-Portable-Monitor-Display-1024X600/dp/B07L6WT77H). You may want to adjust them if your screen is different.  There are many settings that can be overriden in here but the ones to look at first are:
 
 **(BE SURE to edit the main config.ini file, NOT the config.ini file in each plugin folder. It is there for your reference/documentation only and can/will be overritten when you upgrade)**
 - __Main config.ini__ 
@@ -123,21 +123,41 @@ git clone https://github.com/nomachinez/pidisplay.git
   - Update the ip address of your Pi-Hole server, if it's not the same as the one running PiDisplay
 - __pidisplay/plugins/systeminfo__
   - Update the font size for your screen
-
-6) The yfinance python3 module requires the numpy python3 module which requires you to first install the libatlas3-base package on your computer.  For Raspberry Pis, or any other debian-based system you should be able to install this easily like this:
+6. The yfinance python3 module requires the numpy python3 module which requires you to first install the libatlas3-base package on your computer. Also, we're going to need to install some python modules and pygame requires SDL2, so let's install them now:
 ````commandline
-sudo apt install libatlas3-base
+sudo apt install libatlas3-base python3-pip python3-pygame python3-sdl2
 ````
-7) Install other python modules to support the included plugins (required if you elect to use the respective module):
+7. Install python modules to support the included plugins (required if you elect to use the respective module):
 ````commandline
-sudo pip3 install pillow spotipy feedparser psutil pygame requests yfinance
+sudo pip3 install pillow spotipy feedparser psutil requests yfinance
 ````
+8. In order to use Spotify you need to add the app to your Spotify account and generate an access token:
+    * 1\) In the Spotify Developer Dashboard (https://developer.spotify.com/dashboard/applications) and log in.
+    * 2\) Click Create an app on the top-left
+    * 3\) In the Create an app dialog, set an app name and app description (these can be anything you want, but be descriptive):
+        - App name: PiDisplay
+        - App description: Display your Now Playing information on your Pi!
+          (note: you must agree to the terms to continue)
+    * 4\) Click Create
+    * 5\) In your new PiDisplay app settings (still in the Spotify Developer web portal), copy the Client ID. You will need that.
+    * 6\) Now update the Redirect URI for your PiDisplay app (still in the Spotify Developer web portal) by clicking Edit Settings
+    * 7\) In the Edit Settings dialog, in the Redirect URIs section, enter "http://localhost:8888/callback" and click Add
+    * 8\) Click Save
+    * 9\) Now, back on your computer or PiDisplay computer, run the get_spotify_token.py:
+    ````commandline
+    python3 ./pidisplay/get_spotify_token.py
+    ````
+    * 10\) Enter your Client ID (from step 5) and your username when prompted.
+    * 11\) The script will give you a URL.  Go to that URL and click Agree to allow the app to have access to your account.
+    * 12\) Once you click agree, you will be redirected to http://localhost:8888/<something>, which will not work in your browser.  This is ok.  Copy the new URL and paste it back into the script when prompted.
+   ![SpotifyOAuth](screenshots/spotify_oath.png "Spotify OAuth")
+    * 13\) If you are running this on a system other than the one you will use to run PiDisplay, copy the ".cache-\<username>" file over to the system where you will run PiDisplay, in the directory from which you will run it (e.g., /home/pi).
 
-7) Run it!
+10. Run it!
 ````commandline
 python3 pidisplay/pidisplay.py
 ````
-8) (Optional) Configure your Raspberry Pi to log in automatically and automatically start PiDisplay
+10. (Optional) Configure your Raspberry Pi to log in automatically and automatically start PiDisplay
 ```commandline
 sudo raspi-config
 ```

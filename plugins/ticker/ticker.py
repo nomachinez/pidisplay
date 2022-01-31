@@ -88,8 +88,13 @@ class Ticker(DirtySprite, WidgetPlugin):
                     fg_color = self.foreground
                     bg_color = self.background
 
-                surf_ticker_text = self.font.render("{} {}".format(self.tickers_info[i]["symbol"],
-                                                                   locale.currency(current_price, grouping=True)),
+                try:
+                    current_price = float(current_price)
+                except:
+                    current_price = -1.0
+
+                surf_ticker_text = self.font.render("{} {:.2f}".format(self.tickers_info[i]["symbol"],
+                                                                   float(locale.currency(current_price, grouping=True, symbol=False))),
                                                     True, fg_color)
 
                 surf_ticker = pygame.Surface((self.ticker_buffer + surf_ticker_text.get_width(), self.screen_height))

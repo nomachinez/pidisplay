@@ -56,7 +56,10 @@ def main():
 
     canvas = pygame.display.get_surface()
 
-    pygame.mouse.set_pos((canvas.get_width()/2, canvas.get_height()/2))
+    screen_width = canvas.get_width()
+    screen_height = canvas.get_height()
+
+    pygame.mouse.set_pos((int(canvas.get_width()/2), int(canvas.get_height()/2)))
     pygame.mouse.set_visible(False)
 
     plugin_modules = get_plugins(debug)
@@ -134,6 +137,8 @@ def main():
     message_step = 255.0 / (fps * appconfig.getint("message_popup_fade_time"))
 
     full_screen_rect = pygame.Rect(0, top_offset, canvas.get_width(), canvas.get_height() - top_offset - bottom_offset)
+    print(full_screen_rect)
+    print("WxH = {}x{}".format(canvas.get_width(), canvas.get_height()))
     full_screen_canvas_small = canvas.subsurface(full_screen_rect)
 
     current_plugin, tick, full_screen_plugin, start_time = switch_plugin(current_plugin,
