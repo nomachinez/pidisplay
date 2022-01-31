@@ -3,6 +3,8 @@ Ticker
 (c) Steven Babineau - babineau@gmail.com
 2022
 """
+import os
+
 import pygame
 import yfinance
 import requests
@@ -11,19 +13,18 @@ import json
 import threading
 import locale
 
+from pygame.sprite import DirtySprite
 
-class Ticker(pygame.sprite.DirtySprite):
+from lib.widget_plugin import WidgetPlugin
+
+
+class Ticker(DirtySprite, WidgetPlugin):
     """ Ticker """
-    def __init__(self, config, helper, canvas):
-        pygame.sprite.DirtySprite.__init__(self)
+    def __init__(self, helper, canvas, app_plugin_config):
+        DirtySprite.__init__(self)
+        WidgetPlugin.__init__(self, helper, canvas, os.path.abspath(os.path.dirname(__file__)), app_plugin_config)
 
-        self.config = config
-        self.helper = helper
-
-        self.screen_height = canvas.get_height()
-        self.screen_width = canvas.get_width()
-
-        self.tickers = {}
+        self.tickers_info = {}
         self.ticker_surfaces = []
         self.timer = -1
         self.tickers_updated = False
@@ -31,48 +32,63 @@ class Ticker(pygame.sprite.DirtySprite):
         self.pos_x = 0
         self.ticker_buffer = 40
 
+        print("Ticker: {} x {}".format(self.screen_width, self.screen_height))
+
         font_size = 1
         self.ticker_border_size = 1
         margin = 2
-        self.font = pygame.font.SysFont(self.config["application_sysfont"], font_size)
+        self.font = pygame.font.SysFont(self.plugin_config["default_font_face"], font_size)
         while self.font.size("XXXX")[1] + (self.ticker_border_size+margin)*2 < self.screen_height:
             font_size += 1
-            self.font = pygame.font.SysFont(self.config["application_sysfont"], font_size)
+            self.font = pygame.font.SysFont(self.plugin_config["default_font_face"], font_size)
 
         font_size -= 1
-        self.font = pygame.font.SysFont(self.config["application_sysfont"], font_size)
+        self.font = pygame.font.SysFont(self.plugin_config["default_font_face"], font_size)
 
-        self.helper.log(self.config, "Found a font size of {}".format(font_size))
+        print("set font size to {}".format(font_size))
+
+        self.helper.log(self.debug, "Found a font size of {}".format(font_size))
+        self.border_brighten_amount = 32
+
+        self.test_mode = self.plugin_config.getboolean("test_mode")
+        self.background = eval(self.plugin_config["background"])
+        self.foreground = eval(self.plugin_config["foreground"])
+        self.down_background = eval(self.plugin_config["down_background"])
+        self.down_foreground = eval(self.plugin_config["down_foreground"])
+        self.up_background = eval(self.plugin_config["up_background"])
+        self.up_foreground = eval(self.plugin_config["up_foreground"])
+        self.speed = self.plugin_config.getint("speed")
+        self.update_interval = self.plugin_config.getint("update_interval")
+        self.tickers = eval(self.plugin_config["tickers"])
 
     def download_tickers(self):
-        self.helper.log(self.config, "TICKER TEST MODE: {}".format(self.config["test_mode"]))
+        self.helper.log(self.debug, "TICKER TEST MODE: {}".format(self.test_mode))
 
-        for i in self.config["tickers"]:
-            self.download_ticker(i, self.config["test_mode"])
+        for i in self.tickers:
+            self.download_ticker(i, self.test_mode)
 
     def update_ticker_surfaces(self):
         self.ticker_surfaces = []
         locale.setlocale(locale.LC_ALL, "")
 
-        for i in self.tickers:
-            if len(i) > 0 and ("currentPrice" in self.tickers[i] or "regularMarketPrice" in self.tickers[i]):
-                current_price = self.tickers[i]["currentPrice"] \
-                    if "currentPrice" in self.tickers[i] else self.tickers[i]["regularMarketPrice"]
+        for i in self.tickers_info:
+            if len(i) > 0 and ("currentPrice" in self.tickers_info[i] or "regularMarketPrice" in self.tickers_info[i]):
+                current_price = self.tickers_info[i]["currentPrice"] \
+                    if "currentPrice" in self.tickers_info[i] else self.tickers_info[i]["regularMarketPrice"]
 
-                self.helper.log(self.config, "Current price: {} Open Price {}".format(current_price,
-                                                                                      self.tickers[i]["open"]))
+                self.helper.log(self.debug, "Current price: {} Open Price {}".format(current_price, self.tickers_info[i]["open"]))
 
-                if current_price < self.tickers[i]["open"]:
-                    fg_color = self.config["down_foreground"]
-                    bg_color = self.config["down_background"]
-                elif current_price > self.tickers[i]["open"]:
-                    fg_color = self.config["up_foreground"]
-                    bg_color = self.config["up_background"]
+                if current_price < self.tickers_info[i]["open"]:
+                    fg_color = self.down_foreground
+                    bg_color = self.down_background
+                elif current_price > self.tickers_info[i]["open"]:
+                    fg_color = self.up_foreground
+                    bg_color = self.up_background
                 else:
-                    fg_color = self.config["foreground"]
-                    bg_color = self.config["background"]
+                    fg_color = self.foreground
+                    bg_color = self.background
 
-                surf_ticker_text = self.font.render("{} {}".format(self.tickers[i]["symbol"],
+                surf_ticker_text = self.font.render("{} {}".format(self.tickers_info[i]["symbol"],
                                                                    locale.currency(current_price, grouping=True)),
                                                     True, fg_color)
 
@@ -80,19 +96,17 @@ class Ticker(pygame.sprite.DirtySprite):
 
                 surf_ticker.fill(bg_color)
 
-                brighten_amount = 32
-                r = bg_color[0] + brighten_amount
+                r = bg_color[0] + self.border_brighten_amount
                 if r > 255:
                     r = 255
-                g = bg_color[1] + brighten_amount
+                g = bg_color[1] + self.border_brighten_amount
                 if g > 255:
                     g = 255
-                b = bg_color[1] + brighten_amount
+                b = bg_color[1] + self.border_brighten_amount
                 if b > 255:
                     b = 255
 
-                opposite_bg_color = (r, g, b)
-                pygame.draw.rect(surf_ticker, opposite_bg_color,
+                pygame.draw.rect(surf_ticker, (r, g, b),
                                  (0, 0, surf_ticker.get_width(), surf_ticker.get_height()),
                                  self.ticker_border_size)
 
@@ -101,8 +115,8 @@ class Ticker(pygame.sprite.DirtySprite):
 
                 self.ticker_surfaces.append(surf_ticker)
 
-    def update(self, tick, canvas):
-        if int(time.time() * 1000) - self.timer > self.config["update_interval"] * 1000 * 60:
+    def update(self, tick):
+        if int(time.time() * 1000) - self.timer > self.update_interval * 1000 * 60:
             self.download_tickers()
             self.timer = int(time.time() * 1000)
 
@@ -110,16 +124,16 @@ class Ticker(pygame.sprite.DirtySprite):
             self.update_ticker_surfaces()
             self.tickers_updated = False
 
-        canvas.fill(self.config["background"])
+        self.canvas.fill(self.background)
 
         reset_width = 0
         for i in self.ticker_surfaces:
             reset_width += i.get_width()
 
-        if self.config["speed"] > 0:
+        if self.speed > 0:
             if self.pos_x <= reset_width*-1:
                 self.pos_x = -reset_width - self.pos_x
-        elif self.config["speed"] < 0:
+        elif self.speed < 0:
             if self.pos_x > reset_width or self.pos_x == 0:
                 self.pos_x = -reset_width
 
@@ -128,7 +142,7 @@ class Ticker(pygame.sprite.DirtySprite):
         j = 0
         if len(self.ticker_surfaces) > 0:
             while x < self.screen_width + reset_width:
-                canvas.blit(self.ticker_surfaces[i], (x, 0))
+                self.canvas.blit(self.ticker_surfaces[i], (x, 0))
                 x += self.ticker_surfaces[i].get_width()
 
                 i += 1
@@ -136,7 +150,7 @@ class Ticker(pygame.sprite.DirtySprite):
                     i = 0
                 j += 1
 
-        self.pos_x -= self.config["speed"]
+        self.pos_x -= self.speed
 
     def download_ticker(self, ticker, test_mode):
         thread_timer = threading.Thread(target=self.get_ticker_thread, args=([ticker, test_mode]))
@@ -147,7 +161,7 @@ class Ticker(pygame.sprite.DirtySprite):
         session = requests.Session()
         session.headers['User-agent'] = 'pidisplay/1.0'
 
-        self.helper.log(self.config, "getting ticker {} (Test Mode:{})".format(ticker, test_mode))
+        self.helper.log(self.debug, "getting ticker {} (Test Mode:{})".format(ticker, test_mode))
         if test_mode:
             time.sleep(5)
 
@@ -158,7 +172,8 @@ class Ticker(pygame.sprite.DirtySprite):
 
         lock = threading.Lock()
         lock.acquire()
-        self.tickers.update(results)
+        self.tickers_info.update(results)
         self.tickers_updated = True
-        self.helper.log(self.config, "done getting ticker {}".format(ticker))
+        self.helper.log(self.debug, "done getting ticker {}".format(ticker))
         lock.release()
+

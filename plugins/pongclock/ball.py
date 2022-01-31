@@ -5,15 +5,18 @@ import pygame
 
 class Ball(pygame.sprite.DirtySprite):
     """ Ball object """
-    # pylint: disable=too-many-instance-attributes
-    def __init__(self, config, helper, velocity, screen_width, screen_height):
-        # pylint: disable=too-many-arguments
+    def __init__(self, debug, plugin_config, helper, velocity, screen_width, screen_height):
         pygame.sprite.DirtySprite.__init__(self)
 
-        self.config = config
         self.helper = helper
-        self.image = pygame.Surface([self.config["ball_width"], self.config["ball_width"]])
-        self.image.fill(self.config["foreground"])
+        self.ball_width = plugin_config.getint("ball_width")
+        self.foreground = eval(plugin_config["foreground"])
+        self.screen_margin = plugin_config.getint("screen_margin")
+        self.digit_height = plugin_config.getint("digit_height")
+        self.paddle_width = plugin_config.getint("paddle_width")
+        self.debug = debug
+        self.image = pygame.Surface([self.ball_width, self.ball_width])
+        self.image.fill(self.foreground)
 
         self.screen_width = screen_width
         self.screen_height = screen_height
@@ -27,7 +30,7 @@ class Ball(pygame.sprite.DirtySprite):
         self._just_lost = False
         self._lose_side = ""
 
-        self.playscreen_height = self.screen_height - (3 * self.config["screen_margin"]) - self.config["digit_height"]
+        self.playscreen_height = self.screen_height - (3 * self.screen_margin) - self.digit_height
         self.playscreen_width = 0
         
         self._bounced = False
@@ -36,8 +39,8 @@ class Ball(pygame.sprite.DirtySprite):
 
     def reset(self, velocity):
         """ Resets the location of the ball to the middle of the playing field """
-        self.rect.top = self.screen_height/2 - self.config["ball_width"]/2
-        self.rect.left = self.screen_width/2 - self.config["ball_width"]/2
+        self.rect.top = self.screen_height/2 - self.ball_width/2
+        self.rect.left = self.screen_width/2 - self.ball_width/2
         self.velocity = list(velocity)
         self._hity = -1
         self.firstrun = True
@@ -79,52 +82,48 @@ class Ball(pygame.sprite.DirtySprite):
     def direction(self):
         """ Returns left or right depending on which direction the ball is going """
         if self.velocity[0] < 0:
-            return self.config["left"]
-
-        return self.config["right"]
+            return self.helper.LEFT
+        return self.helper.RIGHT
 
     def update(self, canvas):
         """ Overridden update method """
-        # pylint: disable=too-many-branches
-        
         self.rect.move_ip(self.velocity)
         self._bounced = False
         
-        if self.rect.top <= self.config["screen_margin"] * 2 + self.config["digit_height"]:
+        if self.rect.top <= self.screen_margin * 2 + self.digit_height:
             # BOUNCED ON TOP
-            self.helper.log(self.config, "BOUNCED")
-            self.rect.top = self.config["screen_margin"] * 2 + self.config["digit_height"]
+            self.helper.log(self.debug, "BOUNCED")
+            self.rect.top = self.screen_margin * 2 + self.digit_height
             self.velocity[1] *= -1            
-        elif self.rect.bottom >= self.screen_height - self.config["screen_margin"]:
+        elif self.rect.bottom >= self.screen_height - self.screen_margin:
             # BOUNCED ON BOTTOM
-            self.helper.log(self.config, "BOUNCED")
-            self.rect.top = self.screen_height - self.config["screen_margin"] - self.config["ball_width"]
+            self.helper.log(self.debug, "BOUNCED")
+            self.rect.top = self.screen_height - self.screen_margin - self.ball_width
             self.velocity[1] *= -1
-        elif self.rect.left <= self.config["screen_margin"] + self.config["paddle_width"]:
+        elif self.rect.left <= self.screen_margin + self.paddle_width:
             # BOUNCED ON LEFT
-            if self._lose_side == self.config["left"]:
+            if self._lose_side == self.helper.LEFT:
                 self._just_lost = True
-                self.helper.log(self.config, "left just lost")
+                self.helper.log(self.debug, "left just lost")
             else:
                 # Not time to lose.  Just bounce the ball
-                self.rect.left = self.config["screen_margin"] + self.config["paddle_width"]
+                self.rect.left = self.screen_margin + self.paddle_width
                 self.velocity[0] *= -1
                 self._bounced = True
-                self.helper.log(self.config, "BOUNCED")
+                self.helper.log(self.debug, "BOUNCED")
 
-        elif self.rect.right >= self.screen_width - self.config["screen_margin"] - \
-                self.config["paddle_width"]:
+        elif self.rect.right >= self.screen_width - self.screen_margin - \
+                self.paddle_width:
             # BOUNCED ON RIGHT
-            if self._lose_side == self.config["right"]:
+            if self._lose_side == self.helper.RIGHT:
                 self._just_lost = True
-                self.helper.log(self.config, "right just lost")
+                self.helper.log(self.debug, "right just lost")
             else:
                 # No time to lose.  Just bounce the ball
-                self.rect.left = self.screen_width - self.config["screen_margin"] - \
-                                 self.config["paddle_width"] - self.config["ball_width"]
+                self.rect.left = self.screen_width - self.screen_margin - self.paddle_width - self.ball_width
                 self.velocity[0] *= -1
                 self._bounced = True
-                self.helper.log(self.config, "BOUNCED")
+                self.helper.log(self.debug, "BOUNCED")
 
         if self._bounced or self.firstrun:
             # now figure it where it's going to end up on the other side of the play field
@@ -133,19 +132,16 @@ class Ball(pygame.sprite.DirtySprite):
             if self.velocity[0] < 0:
                 slope *= -1.0
 
-            self.playscreen_height = self.screen_height - (3 * self.config["screen_margin"]) - \
-                self.config["digit_height"]
+            self.playscreen_height = self.screen_height - (3 * self.screen_margin) - self.digit_height
             
             if self.firstrun:
-                self.playscreen_width = self.screen_width/2 - \
-                                        (self.config["screen_margin"] - self.config["paddle_width"])
+                self.playscreen_width = self.screen_width/2 - (self.screen_margin - self.paddle_width)
             else:
-                self.playscreen_width = self.screen_width - self.config["screen_margin"]*2 - \
-                                        self.config["paddle_width"]*2
+                self.playscreen_width = self.screen_width - self.screen_margin*2 - self.paddle_width*2
             
             self.firstrun = False
 
-            ball_projected_y = self.rect.top - (self.config["screen_margin"]*2 + self.config["digit_height"])
+            ball_projected_y = self.rect.top - (self.screen_margin*2 + self.digit_height)
             expanded_projected_y = (slope * (self.playscreen_width*1.0)) + (ball_projected_y*1.0)
 
             bounces = math.floor(expanded_projected_y / (self.playscreen_height*1.0))
@@ -156,9 +152,8 @@ class Ball(pygame.sprite.DirtySprite):
                 projected_y = self.playscreen_height - projected_y
 
             # project it onto the surface coords
-            self._hity = projected_y + (self.config["screen_margin"] * 2) + self.config["digit_height"] + \
-                self.config["ball_width"]/2
-            self.helper.log(self.config, "set hity to: {}".format(self._hity))
+            self._hity = projected_y + (self.screen_margin * 2) + self.digit_height + self.ball_width/2
+            self.helper.log(self.debug, "set hity to: {}".format(self._hity))
 
         # self.surface.blit(canvas, (0, 0))
         canvas.blit(self.image, self.rect)

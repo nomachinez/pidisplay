@@ -8,12 +8,18 @@ DIGIT_SEGMENTS = {'0': '1111110', '1': '0110000', '2': '1101101', '3': '1111001'
 class ScoreDigit(pygame.sprite.DirtySprite):
     """Draws a score digit"""
 
-    def __init__(self, config, helper, left, top, digit):
+    def __init__(self, debug, plugin_config, helper, left, top, digit):
         """Draws a score digit"""
         pygame.sprite.DirtySprite.__init__(self)
-        self.config = config
+
         self.helper = helper
-        self.image = pygame.Surface([self.config["digit_width"], self.config["digit_height"]])
+        self.debug = debug
+        self.digit_width = plugin_config.getint("digit_width")
+        self.digit_height = plugin_config.getint("digit_height")
+        self.digit_line_width = plugin_config.getint("digit_line_width")
+        self.foreground = eval(plugin_config["foreground"])
+
+        self.image = pygame.Surface([self.digit_width, self.digit_height])
         self.original_image = self.image.copy()
         self.rect = self.image.get_rect()
         self.rect.top = top
@@ -39,10 +45,10 @@ class ScoreDigit(pygame.sprite.DirtySprite):
         except KeyError:
             raise ValueError("Invalid digit passed", digit)
         
-        dw = self.config["digit_width"]
-        dh = self.config["digit_height"]
-        lw = self.config["digit_line_width"]
-        fg = self.config["foreground"]
+        dw = self.digit_width
+        dh = self.digit_height
+        lw = self.digit_line_width
+        fg = self.foreground
         
         #                                   left     top                width height
         if segments_key[0] == "1":
