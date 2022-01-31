@@ -42,15 +42,23 @@ PiDisplay is an application (written in python) that gives you a slideshow of ne
 # Screenshots
 On the top and bottom of each of these screenshots you can see the ticker and the clok.
 
-![Newsfeed](screenshots/1.png "Newsfeed")
+PongClock
+![PongClock](screenshots/1.png "PongClock")
+Picture Viewer
 ![Picture Viewer](screenshots/2.png "Picture Viewer")
-![PongClock](screenshots/3.png "PongClock")
+Weather
+![Weather](screenshots/3.png "Weather")
+Conways Game of Life
 ![Conway's Game of Life](screenshots/4.png "Conway's Game of Life")
-![Weather](screenshots/5.png "Weather")
-
-Multiple widgets on the top and bottom:
-
+News Feed
+![NewsFeed](screenshots/5.png "NewsFeed")
+Pi-Hole Information
+![Pi-Hole](screenshots/pihole.png "Pi-Hole")
+System Information
+![SystemInformation](screenshots/systeminfo.png "System Information")
+Multiple widgets on the top and bottom (that can be independently turned on and off):
 ![Multiple Widgets](screenshots/6.png "Multiple Widgets")
+
 # Requirements
 - python3
 - various python3 modules:
