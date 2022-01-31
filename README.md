@@ -232,3 +232,4 @@ widget_location = bottom
 - Added Pi-Hole Info plugin
 - Made it so the height of each widget bar can be customized individually
 - Made it so each full screen plugin can have its own auto switch delay
+- Turn on/off the widgets per full screen plugin (e.g., optionally don't show the widgets when there's a lot of other stuff on the screen, like on the System Info screen, or on the Picture Viewer screen when you want a nice picture frame)
