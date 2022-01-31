@@ -99,14 +99,9 @@ def main():
 
     full_screen_plugins = []
 
-    #top_bar_height = appconfig.getint("top_bar_height")
-    #bottom_bar_height = appconfig.getint("bottom_bar_height")
-
     top_bar_y = 0
     bottom_bar_y = canvas.get_height()
 
-    top_padding = 0
-    bottom_padding = 0
     for i in range(len(plugins)):
         plugin = plugins[i]
         if WidgetPlugin in plugin["class"].__bases__:
@@ -226,7 +221,8 @@ def main():
         if update:
             pygame.display.flip()
 
-        if time.time() - start_time > full_screen_plugins[current_plugin]["autoswitch_timer"]:
+        if time.time() - start_time > full_screen_plugins[current_plugin]["autoswitch_timer"] or full_screen_plugin.READY_TO_SWITCH:
+            full_screen_plugin.READY_TO_SWITCH = False
             # Switch plugins
             if appconfig.getboolean("take_screenshots"):
                 screenshot_file = os.path.abspath(os.path.join(os.path.dirname(__file__),

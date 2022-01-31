@@ -65,6 +65,8 @@ class NowPlaying(FullScreenPlugin, metaclass=Singleton):
         self.dark_color = eval(self.plugin_config["dark_color"])
         self.foreground_notplaying = eval(self.plugin_config["foreground_notplaying"])
         self.test_mode = self.plugin_config.getboolean("test_mode")
+
+        self.switch_next_plugin_when_nothing_is_playing = self.plugin_config.getboolean("switch_next_plugin_when_nothing_is_playing")
         
         tmp_width = self.screen_width / 3.0
         if self.screen_height < tmp_width + (self.screen_margin * 2):
@@ -111,6 +113,9 @@ class NowPlaying(FullScreenPlugin, metaclass=Singleton):
                 self.image.fill(self.background_color)
                 surf_error_text = self.title_font.render("Nothing is playing!", True, self.foreground_notplaying)
                 self.image.blit(surf_error_text, (self.image.get_width()/2 - surf_error_text.get_width()/2, self.image.get_height()/2 - surf_error_text.get_height()/2))
+                if self.switch_next_plugin_when_nothing_is_playing:
+                    self.READY_TO_SWITCH = True
+                    self.helper.log(self.debug, "Nothing is playing, switch away!")
             else:
                 print("Track info is set! Building surfaces for {}".format(self.track_info.track_name))
                 if self.track_info.background is not None:

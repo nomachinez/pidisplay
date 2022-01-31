@@ -188,6 +188,7 @@ widget_location = bottom
 
 - Add moon phase to weather
 - Fix the paddles in the pongclock. The paddles track the ball correctly only about 90% of the time.
+- Add location to weather plugin
 
 # Changelog
 

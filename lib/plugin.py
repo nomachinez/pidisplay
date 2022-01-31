@@ -11,6 +11,8 @@ class Plugin:
         self.screen_width = self.canvas.get_width()
         self.screen_height = self.canvas.get_height()
 
+        self.READY_TO_SWITCH = False
+
         self.just_in = False
 
     def update(self, tick):
