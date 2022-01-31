@@ -50,6 +50,8 @@ Weather
 ![Weather](screenshots/3.png "Weather")
 Conways Game of Life
 ![Conway's Game of Life](screenshots/4.png "Conway's Game of Life")
+Now Playing (Spotify)
+![NowPlaying](screenshots/nowplaying.png "Now Playing")
 News Feed
 ![NewsFeed](screenshots/5.png "NewsFeed")
 Pi-Hole Information
