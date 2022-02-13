@@ -37,6 +37,7 @@ PiDisplay is an application (written in python) that gives you a slideshow of ne
 - Newsfeed - tap/click on an article to send the link to a Slack channel
 - Conways Game of Life - tap/click on the screen to reset the world
 - Picture Viewer - tap/click on the screen to move to manually move to the next picture
+- The World Clock plugin can have 1, 2, 3, or more clocks and will attempt to automatically lay them out so they stay looking good.
 - Enable/Disable individual modules/plugins
 - Multiple modules running at the same time. Show weather in 2 different places!  Show multiple tickers with different symbole!
 - Easy to extend with other modules (use the Clok module for an example widget and the GameOfLife module for an example full screen module)
@@ -52,6 +53,10 @@ Picture Viewer
 ![Picture Viewer](screenshots/2.png "Picture Viewer")
 Weather
 ![Weather](screenshots/3.png "Weather")
+Analog Clock
+![World Clock](screenshots/worldclock.png "World Clock")
+Digital Clcok
+![Digital Clock](screenshots/digitalclock.png "Digital Clock")
 Conways Game of Life
 ![Conway's Game of Life](screenshots/4.png "Conway's Game of Life")
 Now Playing (Spotify)
