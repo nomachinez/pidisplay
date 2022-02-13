@@ -15,7 +15,7 @@ class Plugin:
 
         self.just_in = False
 
-    def update(self, tick):
+    def update(self, tick, fps):
         pass
 
     @staticmethod

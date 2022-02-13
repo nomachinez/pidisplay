@@ -46,7 +46,7 @@ class Clok(DirtySprite, WidgetPlugin):
         self.minute_ratio = (self.screen_width*1.0) / (24 * 60)
         self.helper.log(self.debug, "Width: {} Minute Ratio: {}".format(self.screen_width, self.minute_ratio))
 
-    def update(self, tick):
+    def update(self, tick, fps):
         if self.image is not None:
             self.canvas.blit(self.image, (0, 0))
             pygame.draw.rect(self.canvas, self.marker_color,

@@ -12,7 +12,7 @@ import threading
 import time
 import pygame
 import requests
-from spotipy import SpotifyPKCE, Spotify
+from spotipy import SpotifyPKCE, Spotify, CacheFileHandler
 from PIL import Image, ImageFilter, ImageEnhance
 
 from lib.fullscreen_plugin import FullScreenPlugin
@@ -77,7 +77,7 @@ class NowPlaying(FullScreenPlugin, metaclass=Singleton):
     def handle_click(self, pos):
         pass
 
-    def update(self, tick):
+    def update(self, tick, fps):
         if int(time.time() * 1000) - self.timer > self.update_interval * 1000:
             self.download_now_playing_info()
             self.timer = int(time.time() * 1000)
@@ -298,8 +298,9 @@ class NowPlaying(FullScreenPlugin, metaclass=Singleton):
             scope = self.scope
             redirect_uri = self.redirect_uri
 
-            credential_manager = SpotifyPKCE(scope=scope, open_browser=False, client_id=client_id, username=username,
-                                             state=state, redirect_uri=redirect_uri)
+            handler = CacheFileHandler(cache_path=os.getcwd(), username=username)
+            credential_manager = SpotifyPKCE(scope=scope, open_browser=False, client_id=client_id,
+                                             state=state, redirect_uri=redirect_uri, cache_handler=handler)
             sp = Spotify(client_credentials_manager=credential_manager)
 
             results = sp.current_playback(additional_types="track,episode")

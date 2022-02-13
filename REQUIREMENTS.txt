@@ -1,3 +1,0 @@
-sudo pip3 install yfinance  # for the ticker module. I had to reinstall numpy after installing yfinance. It took a while.
-sudo pip3 install feedparser  # for the news module
-sudo pip3 install pillow # for picture viewer and now playing

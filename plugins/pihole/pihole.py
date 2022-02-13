@@ -87,7 +87,7 @@ class PiHole(FullScreenPlugin, metaclass=Singleton):
         self.timer_bar_y = self.screen_height - self.timer_bar_height
         self.image = self.canvas.copy()
 
-    def update(self, tick):
+    def update(self, tick, fps):
         if int(time.time() * 1000) - self.timer > self.update_interval * 1000:
             self.get_pihole_data()
             self.timer = int(time.time() * 1000)

@@ -43,7 +43,7 @@ class NewsFeed(FullScreenPlugin, metaclass=Singleton):
 
         self.item_boxes = []
 
-    def update(self, tick):
+    def update(self, tick, fps):
         if int(time.time() * 1000) - self.timer > self.update_interval * 1000 * 60:
             self.update_news()
             self.timer = int(time.time() * 1000)

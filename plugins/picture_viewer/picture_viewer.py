@@ -70,7 +70,7 @@ class PictureViewer(FullScreenPlugin, metaclass=Singleton):
     def next_pic(self):
         self.timer = -1
 
-    def update(self, tick):
+    def update(self, tick, fps):
         if int(time.time() * 1000) - self.timer > self.slideshow_delay * 1000:
             # Time for next pic
             pic_num = self.current_picture_index

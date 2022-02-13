@@ -15,7 +15,7 @@ import pygame
 import os
 
 from pygame.sprite import DirtySprite
-from spotipy import SpotifyPKCE, Spotify
+from spotipy import SpotifyPKCE, Spotify, CacheFileHandler
 
 from lib.widget_plugin import WidgetPlugin
 
@@ -72,7 +72,7 @@ class NowPlayingTicker(DirtySprite, WidgetPlugin):
         self.surf_icon_playing = pygame.transform.scale(self.surf_icon_playing, icon_size)
         self.surf_icon_notplaying = pygame.transform.scale(self.surf_icon_notplaying, icon_size)
 
-    def update(self, tick):
+    def update(self, tick, fps):
         if int(time.time() * 1000) - self.timer > self.update_interval * 1000:
             self.download_now_playing_info()
             self.timer = int(time.time() * 1000)
@@ -188,8 +188,9 @@ class NowPlayingTicker(DirtySprite, WidgetPlugin):
         scope = self.scope
         redirect_uri = self.redirect_uri
 
-        credential_manager = SpotifyPKCE(scope=scope, open_browser=False, client_id=client_id, username=username,
-                                         state=state, redirect_uri=redirect_uri)
+        handler = CacheFileHandler(cache_path=os.path.join(os.getcwd(), ".cache-{}".format(username)), username=username)
+        credential_manager = SpotifyPKCE(scope=scope, open_browser=False, client_id=client_id,
+                                         state=state, redirect_uri=redirect_uri, cache_handler=handler)
         sp = Spotify(client_credentials_manager=credential_manager)
 
         self.helper.log(self.debug, "Test Mode:{}".format(test_mode))

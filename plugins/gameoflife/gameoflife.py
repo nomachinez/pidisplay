@@ -54,7 +54,7 @@ class GameOfLife(FullScreenPlugin, metaclass=Singleton):
         for i in range(len(self.world)):
             self.world_colors.append(pygame.Vector3(self.foreground))
 
-    def update(self, tick):
+    def update(self, tick, fps):
         if self.lifetimes >= self.plugin_config.getint("max_generations") or self.just_in:
             self.reset_world()
 

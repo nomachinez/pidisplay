@@ -105,7 +105,7 @@ class PongClock(FullScreenPlugin, metaclass=Singleton):
 
         pygame.display.flip()
 
-    def update(self, tick):
+    def update(self, tick, fps):
         if self.just_in:
             self.setup_board()
 

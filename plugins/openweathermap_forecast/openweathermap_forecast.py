@@ -86,7 +86,7 @@ class OpenWeatherMap(FullScreenPlugin, metaclass=Singleton):
         self.helper.log(self.debug, "done getting weather!")
         lock.release()
 
-    def update(self, tick):
+    def update(self, tick, fps):
         if int(time.time() * 1000) - self.timer > self.update_interval * 1000 * 60:
             self.download_weather()
             self.timer = int(time.time() * 1000)

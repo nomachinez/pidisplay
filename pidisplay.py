@@ -90,10 +90,10 @@ def main():
 
     running = True
     update = True
-    tick = 0
+    #tick = 0
     fps = appconfig.getint("frames_per_second")
 
-    start_time = time.time()
+    #start_time = time.time()
 
     top_widget_plugins = []
     top_bar_canvases = []
@@ -141,103 +141,106 @@ def main():
     print("WxH = {}x{}".format(canvas.get_width(), canvas.get_height()))
     full_screen_canvas_small = canvas.subsurface(full_screen_rect)
 
-    current_plugin, tick, full_screen_plugin, start_time = switch_plugin(current_plugin,
-                                                                         full_screen_plugins,
-                                                                         canvas, full_screen_canvas_small)
+    if len(full_screen_plugins) > 0:
+        current_plugin, tick, full_screen_plugin, start_time = switch_plugin(current_plugin,
+                                                                             full_screen_plugins,
+                                                                             canvas, full_screen_canvas_small)
+        while running:
+            clock.tick(fps)
 
-    while running:
-        clock.tick(fps)
+            if update:
+                full_screen_plugin.update(tick, fps)
+                full_screen_plugin.just_in = False
 
-        if update:
-            full_screen_plugin.update(tick)
-            full_screen_plugin.just_in = False
+                if full_screen_plugins[current_plugin]["internal_name"].getboolean("show_widgets"):
+                    for i in range(len(top_widget_plugins)):
+                        top_widget_plugins[i]["instance"].update(tick, fps)
+                    for i in range(len(bottom_widget_plugins)):
+                        bottom_widget_plugins[i]["instance"].update(tick, fps)
 
-            if full_screen_plugins[current_plugin]["internal_name"].getboolean("show_widgets"):
-                for i in range(len(top_widget_plugins)):
-                    top_widget_plugins[i]["instance"].update(tick)
-                for i in range(len(bottom_widget_plugins)):
-                    bottom_widget_plugins[i]["instance"].update(tick)
+                if tick == fps:
+                    tick = 1
+                else:
+                    tick += 1
 
-            if tick == fps:
-                tick = 1
-            else:
-                tick += 1
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    update = not update
-                elif event.key == pygame.K_ESCAPE or event.key == pygame.K_q:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
                     running = False
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                timer_set = False
-                if doubleclick_timer == 0:
-                    pygame.time.set_timer(helper.EVENT_DOUBLECLICK, appconfig.getint("doubleclick_delay"))
-                    timer_set = True
-                elif doubleclick_timer == 1:
-                    pygame.time.set_timer(helper.EVENT_DOUBLECLICK, 0)
-                    # Switch plugins
-                    current_plugin, tick, full_screen_plugin, start_time = switch_plugin(current_plugin,
-                                                                                         full_screen_plugins,
-                                                                                         canvas, full_screen_canvas_small)
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        update = not update
+                    elif event.key == pygame.K_ESCAPE or event.key == pygame.K_q:
+                        running = False
+                elif event.type == pygame.MOUSEBUTTONDOWN:
                     timer_set = False
-                if timer_set:
-                    doubleclick_timer = 1
-                else:
-                    doubleclick_timer = 0
-            elif event.type == helper.EVENT_DOUBLECLICK:
-                # timer timed out
-                full_screen_plugin.handle_click(pygame.mouse.get_pos())
-                pygame.time.set_timer(helper.EVENT_DOUBLECLICK, 0)
-                doubleclick_timer = 0
-            elif event.type == helper.EVENT_MESSAGE:
-                message = event.message[0]
-                if len(event.message) == 1:
-                    opacity = 255 + (message_step * fps * appconfig.getint("message_popup_fade_delay"))
-                else:
-                    opacity = event.message[1]
-
-                if opacity > 0:
-                    opacity -= message_step
-
-                    surf_message_text = message_font.render(event.message[0], True, (200, 200, 200))
-                    surf_message = pygame.Surface((surf_message_text.get_width() + 40,  # margin
-                                                   surf_message_text.get_height() + 40))
-                    surf_message.fill((32, 32, 32))
-                    surf_message.blit(surf_message_text, (surf_message.get_width()/2 - surf_message_text.get_width()/2,
-                                                          surf_message.get_height()/2 -
-                                                          surf_message_text.get_height()/2))
-                    pygame.draw.rect(surf_message, (200, 200, 200),
-                                     (0, 0, surf_message.get_width(), surf_message.get_height()), 3)
-
-                    if opacity > 255:
-                        surf_message.set_alpha(255)
+                    if doubleclick_timer == 0:
+                        pygame.time.set_timer(helper.EVENT_DOUBLECLICK, appconfig.getint("doubleclick_delay"))
+                        timer_set = True
+                    elif doubleclick_timer == 1:
+                        pygame.time.set_timer(helper.EVENT_DOUBLECLICK, 0)
+                        # Switch plugins
+                        current_plugin, tick, full_screen_plugin, start_time = switch_plugin(current_plugin,
+                                                                                             full_screen_plugins,
+                                                                                             canvas, full_screen_canvas_small)
+                        timer_set = False
+                    if timer_set:
+                        doubleclick_timer = 1
                     else:
-                        surf_message.set_alpha(opacity)
+                        doubleclick_timer = 0
+                elif event.type == helper.EVENT_DOUBLECLICK:
+                    # timer timed out
+                    full_screen_plugin.handle_click(pygame.mouse.get_pos())
+                    pygame.time.set_timer(helper.EVENT_DOUBLECLICK, 0)
+                    doubleclick_timer = 0
+                elif event.type == helper.EVENT_MESSAGE:
+                    message = event.message[0]
+                    if len(event.message) == 1:
+                        opacity = 255 + (message_step * fps * appconfig.getint("message_popup_fade_delay"))
+                    else:
+                        opacity = event.message[1]
 
-                    canvas.blit(surf_message, (canvas.get_width()/2 - surf_message.get_width()/2,
-                                               canvas.get_height() - surf_message.get_height() - 50))  # bottom margin
+                    if opacity > 0:
+                        opacity -= message_step
 
-                    my_event = pygame.event.Event(helper.EVENT_MESSAGE, message=[message, opacity])
-                    pygame.event.post(my_event)
+                        surf_message_text = message_font.render(event.message[0], True, (200, 200, 200))
+                        surf_message = pygame.Surface((surf_message_text.get_width() + 40,  # margin
+                                                       surf_message_text.get_height() + 40))
+                        surf_message.fill((32, 32, 32))
+                        surf_message.blit(surf_message_text, (surf_message.get_width()/2 - surf_message_text.get_width()/2,
+                                                              surf_message.get_height()/2 -
+                                                              surf_message_text.get_height()/2))
+                        pygame.draw.rect(surf_message, (200, 200, 200),
+                                         (0, 0, surf_message.get_width(), surf_message.get_height()), 3)
 
-        if update:
-            pygame.display.flip()
+                        if opacity > 255:
+                            surf_message.set_alpha(255)
+                        else:
+                            surf_message.set_alpha(opacity)
 
-        if time.time() - start_time > full_screen_plugins[current_plugin]["autoswitch_timer"] or full_screen_plugin.READY_TO_SWITCH:
-            full_screen_plugin.READY_TO_SWITCH = False
-            # Switch plugins
-            if appconfig.getboolean("take_screenshots"):
-                screenshot_file = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                                  appconfig["screenshot_dir"],
-                                                  "screenshot_{}.png".format(datetime.datetime.now().timestamp())))
-                pygame.image.save(canvas, screenshot_file)
-                helper.log(debug, "Saved screenshot to {}".format(screenshot_file))
+                        canvas.blit(surf_message, (canvas.get_width()/2 - surf_message.get_width()/2,
+                                                   canvas.get_height() - surf_message.get_height() - 50))  # bottom margin
 
-            current_plugin, tick, full_screen_plugin, start_time = switch_plugin(current_plugin, full_screen_plugins,
-                                                                                 canvas, full_screen_canvas_small)
+                        my_event = pygame.event.Event(helper.EVENT_MESSAGE, message=[message, opacity])
+                        pygame.event.post(my_event)
+
+            if update:
+                pygame.display.flip()
+
+            if time.time() - start_time > full_screen_plugins[current_plugin]["autoswitch_timer"] or full_screen_plugin.READY_TO_SWITCH:
+                full_screen_plugin.READY_TO_SWITCH = False
+                # Switch plugins
+                if appconfig.getboolean("take_screenshots"):
+                    screenshot_file = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                      appconfig["screenshot_dir"],
+                                                      "screenshot_{}.png".format(datetime.datetime.now().timestamp())))
+                    pygame.image.save(canvas, screenshot_file)
+                    helper.log(debug, "Saved screenshot to {}".format(screenshot_file))
+
+                current_plugin, tick, full_screen_plugin, start_time = switch_plugin(current_plugin, full_screen_plugins,
+                                                                                     canvas, full_screen_canvas_small)
+    else:
+        print("Enable a plugin first (make sure to specify the class key in config.ini)!")
+
     pygame.quit()
     sys.exit()
 

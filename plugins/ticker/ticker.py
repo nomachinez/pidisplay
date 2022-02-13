@@ -90,13 +90,16 @@ class Ticker(DirtySprite, WidgetPlugin):
 
                 try:
                     current_price = float(current_price)
-                except:
+                except Exception as err:
                     current_price = -1.0
 
-                surf_ticker_text = self.font.render("{} {:.2f}".format(self.tickers_info[i]["symbol"],
-                                                                   float(locale.currency(current_price, grouping=True, symbol=False))),
-                                                    True, fg_color)
+                # surf_ticker_text = self.font.render("{} {:.2f}".format(self.tickers_info[i]["symbol"],
+                #                                                   float(locale.currency(current_price, grouping=True, symbol=False))),
+                #                                     True, fg_color)
 
+                surf_ticker_text = self.font.render("{} {:.2f}".format(self.tickers_info[i]["symbol"],
+                                                                   float(current_price)),
+                                                    True, fg_color)
                 surf_ticker = pygame.Surface((self.ticker_buffer + surf_ticker_text.get_width(), self.screen_height))
 
                 surf_ticker.fill(bg_color)
@@ -120,7 +123,7 @@ class Ticker(DirtySprite, WidgetPlugin):
 
                 self.ticker_surfaces.append(surf_ticker)
 
-    def update(self, tick):
+    def update(self, tick, fps):
         if int(time.time() * 1000) - self.timer > self.update_interval * 1000 * 60:
             self.download_tickers()
             self.timer = int(time.time() * 1000)

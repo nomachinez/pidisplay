@@ -24,7 +24,7 @@ class SystemInfo(FullScreenPlugin, metaclass=Singleton):
         FullScreenPlugin.__init__(self, helper, canvas, os.path.abspath(os.path.dirname(__file__)), app_plugin_config)
 
         font_str = self.plugin_config["font_face"]
-        if font_str[-4:].lower() == ".ttf":
+        if font_str[-4:].lower() == ".ttf" or font_str[-4:].lower() == ".otf":
             filename = os.path.abspath(os.path.join(os.path.dirname(__file__), "fonts", font_str))
             self.default_font = pygame.font.Font(filename, self.plugin_config.getint("font_size"))
             self.helper.log(self.debug, "FONT: regular font loading {}".format(filename))
@@ -200,8 +200,7 @@ class SystemInfo(FullScreenPlugin, metaclass=Singleton):
             socket.create_connection((hostname, port), 2)
             return True
         except:
-            pass
-        return False
+            return False
 
     @staticmethod
     def connect_time(hostname, port):
@@ -955,7 +954,7 @@ class SystemInfo(FullScreenPlugin, metaclass=Singleton):
 
         return max_width
 
-    def update(self, tick):
+    def update(self, tick, fps):
         if self.info_updated:
             self.image.fill(self.bg_color)
             self.update_image()

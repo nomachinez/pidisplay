@@ -20,6 +20,8 @@ So, what can I do with all this?  I know!  Wouldn't it be great if I had a fancy
 - Spotify "Now Playing" ticker widget
 - Spotify "Now Playing" full screen display
 - System Information panel
+- Analog clock (with multiple clocks for different timezones)
+- Digital clock
 - Clok widget
 
 ...and all this in an easily customizable, extensible, modular format that allows other developers to easily extend it with their own ideas?  Oh, such a neat idea...
@@ -40,7 +42,9 @@ PiDisplay is an application (written in python) that gives you a slideshow of ne
 - Easy to extend with other modules (use the Clok module for an example widget and the GameOfLife module for an example full screen module)
 
 # Screenshots
-On the top and bottom of each of these screenshots you can see the ticker and the clok.
+On the top and bottom of each of these screenshots you can see the ticker and the clok. You can easily remove or 
+otherwise cuztomize these, by the way, simply by editing the config file.  These screenshots are very busy but when you 
+use it you don't have to have it look like this.  They are shown here as examples of what can be done in PiDisplay.
 
 PongClock
 ![PongClock](screenshots/1.png "PongClock")
@@ -56,7 +60,7 @@ News Feed
 ![NewsFeed](screenshots/5.png "NewsFeed")
 Pi-Hole Information
 ![Pi-Hole](screenshots/pihole.png "Pi-Hole")
-System Information
+System Information (note that you can remove the top and bottom widgets per screen, as shown here)
 ![SystemInformation](screenshots/systeminfo.png "System Information")
 Multiple widgets on the top and bottom (that can be independently turned on and off):
 ![Multiple Widgets](screenshots/6.png "Multiple Widgets")
@@ -67,9 +71,10 @@ Multiple widgets on the top and bottom (that can be independently turned on and 
   - **pillow** is for the Picture Viewer and Now Playing plugins
   - **spotipy** is for the Now Playing and Now Playing Ticker plugins
   - **feedparser** is for the News Feed plugin
+  - **pytz** is for the World Clock plugin
   - **requests** is for the Ticker, Pi-Hole, News Feed, Now Playing, System Info and OpenWeather Maps plugins. Probably already included on your system.
   - **yfinance** is for the Ticker plugin
-    - **numpy** yfinance requires this and is known to give Raspberry Pi folks trouble during installation. 
+    - **numpy** yfinance requires this and is known to give Raspberry Pi folks trouble during installation. Follow the instructions below and you should be ok.
 - python3 pygame module and pygame's SDL2 bindings
 
 # Installation
@@ -92,7 +97,7 @@ git clone https://github.com/nomachinez/pidisplay.git
    * You can load a plugin multiple times by adding it multiple times in the main config file. Just make sure to name it something different. The options can be managed seperately as well (e.g., 2 tickers with different symbols and speeds)
    * To disable a plugin, remove it or comment it out in the main config.ini file.
 
-5. The settings in the main config.ini file are great for me and my [1360x768 7" screen](https://www.amazon.com/Eviciv-Portable-Monitor-Display-1024X600/dp/B07L6WT77H). You may want to adjust them if your screen is different.  There are many settings that can be overriden in here but the ones to look at first are:
+5. The settings in the main config.ini file are great for my [1360x768 7" screen](https://www.amazon.com/Eviciv-Portable-Monitor-Display-1024X600/dp/B07L6WT77H). You may want to adjust them if your screen is different.  There are many settings that can be overriden in here but the ones to look at first are:
 
 **(BE SURE to edit the main config.ini file, NOT the config.ini file in each plugin folder. It is there for your reference/documentation only and can/will be overritten when you upgrade)**
 - __Main config.ini__ 
@@ -129,7 +134,7 @@ sudo apt install libatlas3-base python3-pip python3-pygame python3-sdl2
 ````
 7. Install python modules to support the included plugins (required if you elect to use the respective module):
 ````commandline
-sudo pip3 install pillow spotipy feedparser psutil requests yfinance
+sudo pip3 install pillow spotipy feedparser psutil requests yfinance pytz
 ````
 8. In order to use Spotify you need to add the app to your Spotify account and generate an access token:
     * 1\) In the Spotify Developer Dashboard (https://developer.spotify.com/dashboard/applications) and log in.
@@ -221,6 +226,10 @@ widget_location = bottom
 - Add location to weather plugin
 
 # Changelog
+13-02-2022
+- Added the WorldClock plugin
+- Added Digital Clock plugin
+- Fixed a few bugs
 
 01-02-2022
 - Redesigned/Matured configuration system
