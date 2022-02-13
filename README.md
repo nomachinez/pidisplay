@@ -55,7 +55,7 @@ Weather
 ![Weather](screenshots/3.png "Weather")
 Analog Clock
 ![World Clock](screenshots/worldclock.png "World Clock")
-Digital Clcok
+Digital Clock
 ![Digital Clock](screenshots/digitalclock.png "Digital Clock")
 Conways Game of Life
 ![Conway's Game of Life](screenshots/4.png "Conway's Game of Life")
