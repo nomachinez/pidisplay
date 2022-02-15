@@ -1,3 +1,14 @@
+# Table of Contents
+- [Description](#PiDisplay)
+- [Features](#Features)
+- [Screenshots](#Screenshots)
+- [Requirements](#Requirements)
+- [Installation Instructions](#Installation)
+- [Upgrade Instructions](#Upgrade instructions)
+- [Instructions for adding multiple widgets on the top and bottom](#IInstructions for adding multiple widgets on the top and bottom (e.g., Ticker))
+- [TODO](#TODO)
+- [Changelog](#Changelog)
+
 # PiDisplay
 
 I have a chair.
@@ -188,16 +199,23 @@ Reboot
 reboot
 ````
 
+# Upgrade instructions
+1) Make sure to update/install the modules in steps 6 and 7, just in case they changed. Just re-run the commands.
+2) rename your config.ini file to config.ini.backup
+3) Get the latest version by rerunning the git clone command in step 3.
+4) Review any changes to the config.ini file compared to your backup
+5) Add/Update the config settings in config.ini from your config.ini.backup file 
+
 # Instructions for adding multiple widgets on the top and bottom (e.g., Ticker)
-1) Open up the main config.ini file in ./pidisplay/config.ini
-2) Copy the section you want to duplicate and paste it back in, so now you have 2 of them.
-3) Change the section title of the second one to something different
-4) Modify any settings you choose.
+6) Open up the main config.ini file in ./pidisplay/config.ini
+7) Copy the section you want to duplicate and paste it back in, so now you have 2 of them.
+8) Change the section title of the second one to something different
+9) Modify any settings you choose.
 e.g.
 ````commandline
 .....SNIP......
 
-[ticker1]
+[ticker]
 class = Ticker
 tickers = ["msft", "goog"]
 speed = 1
@@ -233,6 +251,8 @@ widget_location = bottom
 - Added location to weather plugin
 - Add moon phase to weather
 - Added 12/24-hour clock option to the digital clock
+- Cleaned up code
+- Fixed a couple bugs
 
 13-02-2022
 - Added the WorldClock plugin
