@@ -57,14 +57,13 @@ class NowPlayingTicker(DirtySprite, WidgetPlugin):
         self.icon = self.plugin_config["icon"]
         self.client_id = self.plugin_config["client_id"]
         self.username = self.plugin_config["username"]
-        self.update_interval = self.plugin_config.getint(("update_interval"))
+        self.update_interval = self.plugin_config.getint("update_interval")
         self.speed = self.plugin_config.getint("speed")
         self.provider = self.plugin_config["provider"]
         self.icon_notplaying = self.plugin_config["icon_notplaying"]
         self.background = eval(self.plugin_config["background"])
         self.foreground = eval(self.plugin_config["foreground"])
         self.foreground_notplaying = eval(self.plugin_config["foreground_notplaying"])
-        self.test_mode = self.plugin_config.getboolean("test_mode")
 
         self.surf_icon_playing = pygame.image.load(os.path.join(self.icons_folder, self.icon), ).convert_alpha()
         self.surf_icon_notplaying = pygame.image.load(os.path.join(self.icons_folder, self.icon_notplaying), ).convert_alpha()
@@ -174,11 +173,11 @@ class NowPlayingTicker(DirtySprite, WidgetPlugin):
                                        self.now_playing_surface.get_height() / 2 - now_playing_text_surface.get_height() / 2))
 
     def download_now_playing_info(self):
-        thread_timer = threading.Thread(target=self.get_now_playing_info, args=([self.test_mode]))
+        thread_timer = threading.Thread(target=self.get_now_playing_info, args=([]))
         thread_timer.daemon = False
         thread_timer.start()
 
-    def get_now_playing_info(self, test_mode):
+    def get_now_playing_info(self):
         state = hashlib.sha256()
         state.update(str.encode(str(datetime.datetime.now().timestamp() * 1000)))
         state = state.hexdigest()
@@ -193,15 +192,9 @@ class NowPlayingTicker(DirtySprite, WidgetPlugin):
                                          state=state, redirect_uri=redirect_uri, cache_handler=handler)
         sp = Spotify(client_credentials_manager=credential_manager)
 
-        self.helper.log(self.debug, "Test Mode:{}".format(test_mode))
-        if test_mode:
-            time.sleep(5)
-            # Playing is true, episodes and track. found track
-            results = json.loads('{"device": {"id": "e3d8ebbeb79079f6a42f2b9e57ffe263e340219b", "is_active": true, "is_private_session": false, "is_restricted": false, "name": "SM-G986U", "type": "Smartphone", "volume_percent": 100}, "shuffle_state": true, "repeat_state": "off", "timestamp": 1642960536418, "context": {"external_urls": {"spotify": "https://open.spotify.com/album/4EwZe3wzi0JWMdobUrpHIs"}, "href": "https://api.spotify.com/v1/albums/4EwZe3wzi0JWMdobUrpHIs", "type": "album", "uri": "spotify:album:4EwZe3wzi0JWMdobUrpHIs"}, "progress_ms": 89732, "item": {"album": {"album_type": "single", "artists": [{"external_urls": {"spotify": "https://open.spotify.com/artist/1r4hJ1h58CWwUQe3MxPuau"}, "href": "https://api.spotify.com/v1/artists/1r4hJ1h58CWwUQe3MxPuau", "id": "1r4hJ1h58CWwUQe3MxPuau", "name": "Maluma", "type": "artist", "uri": "spotify:artist:1r4hJ1h58CWwUQe3MxPuau"}], "available_markets": ["AD", "AE", "AG", "AL", "AM", "AO", "AR", "AT", "AU", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BN", "BO", "BR", "BS", "BT", "BW", "BY", "BZ", "CA", "CD", "CG", "CH", "CI", "CL", "CM", "CO", "CR", "CV", "CW", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC", "EE", "EG", "ES", "FI", "FJ", "FM", "FR", "GA", "GB", "GD", "GE", "GH", "GM", "GN", "GQ", "GR", "GT", "GW", "GY", "HK", "HN", "HR", "HT", "HU", "ID", "IE", "IL", "IN", "IQ", "IS", "IT", "JM", "JO", "JP", "KE", "KG", "KH", "KI", "KM", "KN", "KR", "KW", "KZ", "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MG", "MH", "MK", "ML", "MN", "MO", "MR", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NE", "NG", "NI", "NL", "NO", "NP", "NR", "NZ", "OM", "PA", "PE", "PG", "PH", "PK", "PL", "PS", "PT", "PW", "PY", "QA", "RO", "RS", "RU", "RW", "SA", "SB", "SC", "SE", "SG", "SI", "SK", "SL", "SM", "SN", "SR", "ST", "SV", "SZ", "TD", "TG", "TH", "TJ", "TL", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "US", "UY", "UZ", "VC", "VE", "VN", "VU", "WS", "XK", "ZA", "ZM", "ZW"], "external_urls": {"spotify": "https://open.spotify.com/album/4EwZe3wzi0JWMdobUrpHIs"}, "href": "https://api.spotify.com/v1/albums/4EwZe3wzi0JWMdobUrpHIs", "id": "4EwZe3wzi0JWMdobUrpHIs", "images": [{"height": 640, "url": "https://i.scdn.co/image/ab67616d0000b273f822616dc17f7d40b3f2d8c0", "width": 640}, {"height": 300, "url": "https://i.scdn.co/image/ab67616d00001e02f822616dc17f7d40b3f2d8c0", "width": 300}, {"height": 64, "url": "https://i.scdn.co/image/ab67616d00004851f822616dc17f7d40b3f2d8c0", "width": 64}], "name": "Cositas de la USA", "release_date": "2022-01-20", "release_date_precision": "day", "total_tracks": 1, "type": "album", "uri": "spotify:album:4EwZe3wzi0JWMdobUrpHIs"}, "artists": [{"external_urls": {"spotify": "https://open.spotify.com/artist/1r4hJ1h58CWwUQe3MxPuau"}, "href": "https://api.spotify.com/v1/artists/1r4hJ1h58CWwUQe3MxPuau", "id": "1r4hJ1h58CWwUQe3MxPuau", "name": "Maluma", "type": "artist", "uri": "spotify:artist:1r4hJ1h58CWwUQe3MxPuau"}], "available_markets": ["AD", "AE", "AG", "AL", "AM", "AO", "AR", "AT", "AU", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BN", "BO", "BR", "BS", "BT", "BW", "BY", "BZ", "CA", "CD", "CG", "CH", "CI", "CL", "CM", "CO", "CR", "CV", "CW", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC", "EE", "EG", "ES", "FI", "FJ", "FM", "FR", "GA", "GB", "GD", "GE", "GH", "GM", "GN", "GQ", "GR", "GT", "GW", "GY", "HK", "HN", "HR", "HT", "HU", "ID", "IE", "IL", "IN", "IQ", "IS", "IT", "JM", "JO", "JP", "KE", "KG", "KH", "KI", "KM", "KN", "KR", "KW", "KZ", "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MG", "MH", "MK", "ML", "MN", "MO", "MR", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NE", "NG", "NI", "NL", "NO", "NP", "NR", "NZ", "OM", "PA", "PE", "PG", "PH", "PK", "PL", "PS", "PT", "PW", "PY", "QA", "RO", "RS", "RU", "RW", "SA", "SB", "SC", "SE", "SG", "SI", "SK", "SL", "SM", "SN", "SR", "ST", "SV", "SZ", "TD", "TG", "TH", "TJ", "TL", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "US", "UY", "UZ", "VC", "VE", "VN", "VU", "WS", "XK", "ZA", "ZM", "ZW"], "disc_number": 1, "duration_ms": 189015, "explicit": true, "external_ids": {"isrc": "USSD12100848"}, "external_urls": {"spotify": "https://open.spotify.com/track/5c4KBG3ATUOmP8y2KHGGoI"}, "href": "https://api.spotify.com/v1/tracks/5c4KBG3ATUOmP8y2KHGGoI", "id": "5c4KBG3ATUOmP8y2KHGGoI", "is_local": false, "name": "Cositas de la USA", "popularity": 65, "preview_url": "https://p.scdn.co/mp3-preview/023c4c759379faf94633b2c77b835f98c854e14f?cid=f7227c61822848d9891f81aae5dcd8b7", "track_number": 1, "type": "track", "uri": "spotify:track:5c4KBG3ATUOmP8y2KHGGoI"}, "currently_playing_type": "track", "actions": {"disallows": {"resuming": true, "skipping_prev": true}}, "is_playing": true}')
-        else:
-            results = sp.current_playback(additional_types="track,episode")
-            if results is None:
-                results = {}
+        results = sp.current_playback(additional_types="track,episode")
+        if results is None:
+            results = {}
 
         lock = threading.Lock()
         lock.acquire()

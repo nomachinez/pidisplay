@@ -56,9 +56,6 @@ def main():
 
     canvas = pygame.display.get_surface()
 
-    screen_width = canvas.get_width()
-    screen_height = canvas.get_height()
-
     pygame.mouse.set_pos((int(canvas.get_width()/2), int(canvas.get_height()/2)))
     pygame.mouse.set_visible(False)
 
@@ -90,10 +87,8 @@ def main():
 
     running = True
     update = True
-    #tick = 0
-    fps = appconfig.getint("frames_per_second")
 
-    #start_time = time.time()
+    fps = appconfig.getint("frames_per_second")
 
     top_widget_plugins = []
     top_bar_canvases = []
@@ -128,7 +123,7 @@ def main():
             full_screen_plugins.append({"class": plugin["class"], "autoswitch_timer": plugin["autoswitch_timer"], "internal_name": config[plugin["internal_name"]]})
 
     top_offset = top_bar_y
-    bottom_offset = screen_height - bottom_bar_y
+    bottom_offset = canvas.get_height() - bottom_bar_y
 
     doubleclick_timer = 0
     current_plugin = -1
@@ -280,7 +275,7 @@ def get_plugins(debug):
                         if (type(obj) == type or type(obj) == Singleton) and issubclass(obj, Plugin) and obj.__module__[:8] == "plugins.":
                             # Get the config
                             helper.log(debug, "Found plugin {}".format(obj.__name__))
-                            plugins.append({"class_name": obj.__name__, "class": obj})#, "config": plugin_config})
+                            plugins.append({"class_name": obj.__name__, "class": obj})
     return plugins
 
 

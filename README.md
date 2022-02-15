@@ -39,12 +39,12 @@ PiDisplay is an application (written in python) that gives you a slideshow of ne
 - Picture Viewer - tap/click on the screen to move to manually move to the next picture
 - The World Clock plugin can have 1, 2, 3, or more clocks and will attempt to automatically lay them out so they stay looking good.
 - Enable/Disable individual modules/plugins
-- Multiple modules running at the same time. Show weather in 2 different places!  Show multiple tickers with different symbole!
+- Multiple modules running at the same time. Show weather in 2 different places!  Show multiple tickers with different symbols!
 - Easy to extend with other modules (use the Clok module for an example widget and the GameOfLife module for an example full screen module)
 
 # Screenshots
 On the top and bottom of each of these screenshots you can see the ticker and the clok. You can easily remove or 
-otherwise cuztomize these, by the way, simply by editing the config file.  These screenshots are very busy but when you 
+otherwise customize these, by the way, simply by editing the config file.  These screenshots are very busy but when you 
 use it you don't have to have it look like this.  They are shown here as examples of what can be done in PiDisplay.
 
 PongClock
@@ -100,12 +100,12 @@ git clone https://github.com/nomachinez/pidisplay.git
    * Any widgets need a widget_location = top or widget_location = bottom in the main config.ini file for it to show up.
    * Plugins will be loaded and cycled through in the order present in the main config.ini file.
    * If you want a particular plugin to stay on the screen longer/shorter than the default "autoswitch_timer" value, enter autoswitch_timer = # in the section for that plugin with the number of seconds you want.
-   * You can load a plugin multiple times by adding it multiple times in the main config file. Just make sure to name it something different. The options can be managed seperately as well (e.g., 2 tickers with different symbols and speeds)
+   * You can load a plugin multiple times by adding it multiple times in the main config file. Just make sure to name it something different. The options can be managed separately as well (e.g., 2 tickers with different symbols and speeds)
    * To disable a plugin, remove it or comment it out in the main config.ini file.
 
-5. The settings in the main config.ini file are great for my [1360x768 7" screen](https://www.amazon.com/Eviciv-Portable-Monitor-Display-1024X600/dp/B07L6WT77H). You may want to adjust them if your screen is different.  There are many settings that can be overriden in here but the ones to look at first are:
+5. The settings in the main config.ini file are great for my [1360x768 7" screen](https://www.amazon.com/Eviciv-Portable-Monitor-Display-1024X600/dp/B07L6WT77H). You may want to adjust them if your screen is different.  There are many settings that can be overridden in here but the ones to look at first are:
 
-**(BE SURE to edit the main config.ini file, NOT the config.ini file in each plugin folder. It is there for your reference/documentation only and can/will be overritten when you upgrade)**
+**(BE SURE to edit the main config.ini file, NOT the config.ini file in each plugin folder. It is there for your reference/documentation only and can/will be overwritten when you upgrade)**
 - __Main config.ini__ 
   - Set fullscreen/resolution
   - Set system font
@@ -232,7 +232,7 @@ widget_location = bottom
 15-02-2022
 - Added location to weather plugin
 - Add moon phase to weather
-- Added 12/24 hour clock option to the digital clock
+- Added 12/24-hour clock option to the digital clock
 
 13-02-2022
 - Added the WorldClock plugin

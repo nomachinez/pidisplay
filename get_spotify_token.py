@@ -7,7 +7,7 @@ import os
 from spotipy import SpotifyPKCE, CacheFileHandler
 
 redirect_uri="http://localhost:8888/callback"
-scope="user-read-playback-state,user-modify-playback-state"
+scope = "user-read-playback-state,user-modify-playback-state"
 state = hashlib.sha256()
 state.update(str.encode(str(datetime.datetime.now().timestamp() * 1000)))
 state = state.hexdigest()

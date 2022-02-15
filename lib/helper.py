@@ -65,9 +65,8 @@ def wrap(text, font, max_width, strip=True):
             continue
         # Preserve leading spaces in all cases.
         a = len(text) - len(text.lstrip(" "))
-        # At any time, a is the rightmost known index you can legally split a line. I.e. it's legal
-        # to add text[:a] to lines, and line is what will be added to lines if
-        # text is split at a.
+        # At any time, "a" is the rightmost known index you can legally split a line. I.e. it's legal
+        # to add text[:a] to lines, and line is what will be added to lines if text is split at a.
         a = text.index(" ", a) if " " in text else len(text)
         line = text[:a]
         while a + 1 < len(text):
@@ -75,7 +74,7 @@ def wrap(text, font, max_width, strip=True):
             # corresponding line to add.
             if " " not in text[a + 1:]:
                 b = len(text)
-                #bline = text
+                # bline = text
             elif strip:
                 # Lines may be split at any space character that immediately follows a non-space
                 # character.
@@ -86,7 +85,7 @@ def wrap(text, font, max_width, strip=True):
                     else:
                         b = len(text)
                         break
-                #bline = text[:b]
+                # bline = text[:b]
             else:
                 # Lines may be split at any space character, or any character immediately following
                 # a space character.
@@ -177,7 +176,7 @@ def get_subnet_mask_bits(subnet_mask):
     try:
         socket.inet_aton(subnet_mask)
         cidr = ipaddress.IPv4Network("0.0.0.0/{}".format(subnet_mask)).prefixlen
-    except:
+    except Exception:
         print("BAD SUBNET MASK ")
 
     return cidr

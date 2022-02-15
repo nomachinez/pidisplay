@@ -1,4 +1,3 @@
-import ipaddress
 import threading
 from datetime import datetime
 import os
@@ -254,7 +253,7 @@ class SystemInfo(FullScreenPlugin, metaclass=Singleton):
         # CPU
         self.cpu_temp = psutil.sensors_temperatures(fahrenheit=False)
         self.cpu_current_load = psutil.cpu_percent(interval=None, percpu=True)
-        self.cpu_average_load = [x / psutil.cpu_count() * 100 for x in psutil.getloadavg()] # 1, 5, and 15 minutes
+        self.cpu_average_load = [x / psutil.cpu_count() * 100 for x in psutil.getloadavg()]  # 1, 5, and 15 minutes
         self.cpu_count = "{} / {}".format(len(psutil.Process().cpu_affinity()), psutil.cpu_count())
         self.cpu_frequency = psutil.cpu_freq(percpu=True)
 
@@ -346,8 +345,6 @@ class SystemInfo(FullScreenPlugin, metaclass=Singleton):
         except:
             pass
 
-        #pprint.pprint(self.__dict__)
-
     def get_info_light(self):
         self.cpu_current_load_total = psutil.cpu_percent(interval=None, percpu=False)
         self.cpu_stats = psutil.cpu_times_percent(interval=None, percpu=True)
@@ -427,7 +424,6 @@ class SystemInfo(FullScreenPlugin, metaclass=Singleton):
         self.image.blit(surf_display_info, (self.screen_width - self.upper_right_x - surf_display_info.get_width() - 100 - self.screen_margin, current_y))  # right-padding
 
         current_y += self.default_font.get_linesize() + self.line_buffer
-
 
         local_ip = ""
         subnet_mask = ""
@@ -553,9 +549,9 @@ class SystemInfo(FullScreenPlugin, metaclass=Singleton):
         memory_usage_width = self.memory_info.percent / 100 * self.small_graph_width
         pygame.draw.rect(surf_memory_usage, self.bargraph_color, (0, 0, memory_usage_width, surf_memory_usage.get_height()))
         surf_memory_usage_text = self.default_font.render("{}%".format(self.memory_info.percent), True,
-                                                       self.bargraph_text_color)
+                                                          self.bargraph_text_color)
         surf_memory_usage.blit(surf_memory_usage_text, (surf_memory_usage.get_width() / 2 - surf_memory_usage_text.get_width() / 2,
-                                                  surf_memory_usage.get_height() / 2 - surf_memory_usage_text.get_height() / 2))
+                                                        surf_memory_usage.get_height() / 2 - surf_memory_usage_text.get_height() / 2))
         pygame.draw.rect(surf_memory_usage, self.bargraph_border_color,
                          (0, 0, surf_memory_usage.get_width(), surf_memory_usage.get_height()), 1)
         memory_usage_graph_x = surf_memory_information_title.get_width() + column_spacer + self.screen_margin
@@ -572,8 +568,8 @@ class SystemInfo(FullScreenPlugin, metaclass=Singleton):
                          (0, 0, swap_usage_width, surf_swap_usage.get_height()))
         surf_swap_usage_text = self.default_font.render("{}%".format(self.memory_swap_info.percent), True, self.bargraph_text_color)
         surf_swap_usage.blit(surf_swap_usage_text,
-                               (surf_swap_usage.get_width() / 2 - surf_swap_usage_text.get_width() / 2,
-                                surf_swap_usage.get_height() / 2 - surf_swap_usage_text.get_height() / 2))
+                             (surf_swap_usage.get_width() / 2 - surf_swap_usage_text.get_width() / 2,
+                              surf_swap_usage.get_height() / 2 - surf_swap_usage_text.get_height() / 2))
         pygame.draw.rect(surf_swap_usage, self.bargraph_border_color,
                          (0, 0, surf_swap_usage.get_width(), surf_swap_usage.get_height()), 1)
 
@@ -659,7 +655,7 @@ class SystemInfo(FullScreenPlugin, metaclass=Singleton):
                 pygame.draw.rect(surf, self.bargraph_color, (0, 0, disk_usage_width, surf.get_height()))
                 surf_disk_usage_text = self.default_font.render("{}%".format(du.percent), True, self.bargraph_text_color)
                 surf.blit(surf_disk_usage_text, (surf.get_width() / 2 - surf_disk_usage_text.get_width() / 2,
-                                                surf.get_height() / 2 - surf_disk_usage_text.get_height() / 2))
+                                                 surf.get_height() / 2 - surf_disk_usage_text.get_height() / 2))
                 pygame.draw.rect(surf, self.bargraph_border_color, (0, 0, surf.get_width(), surf.get_height()), 1)
                 self.image.blit(surf, (x, current_y + y + 1))
                 y += self.line_buffer_small + surf.get_height()
@@ -801,7 +797,6 @@ class SystemInfo(FullScreenPlugin, metaclass=Singleton):
         for i in self.networking_nics:
             if i[:2] == "lo":
                 continue
-            need_empty = False
             for j in self.networking_nics[i]:
                 if j.family == socket.AddressFamily.AF_PACKET:
                     texts.append(j.address)

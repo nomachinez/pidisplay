@@ -116,7 +116,7 @@ class PiHole(FullScreenPlugin, metaclass=Singleton):
         current_x = self.screen_margin
         self.image.blit(surf_hostname_header, (current_x, current_y))
         current_x += surf_hostname_header.get_width()
-        self.image.blit(surf_hostname, (current_x, current_y))# + (surf_hostname_header.get_height() - surf_hostname.get_height())/2))
+        self.image.blit(surf_hostname, (current_x, current_y))
         current_x += surf_hostname.get_width() + x_spacer
 
         # STATUS LIGHT
@@ -235,7 +235,7 @@ class PiHole(FullScreenPlugin, metaclass=Singleton):
 
         try:
             float_val = float(self.pihole_status["summary"]["ads_percentage_today"])
-        except:
+        except ValueError:
             float_val = -1.0
 
         surf1 = self.default_font.render("Today: {} ads blocked with {} total DNS queries ({:.1f}%)"
@@ -418,7 +418,7 @@ class PiHole(FullScreenPlugin, metaclass=Singleton):
         # ================================================================
         # TOP ADS SURFACES
 
-        top_ads_height = 0
+        # top_ads_height = 0
         widest_top_ads_surf_domains = 0
         surfs_top_ads_domains = []
         widest_top_ads_surf_val = 0
@@ -435,7 +435,7 @@ class PiHole(FullScreenPlugin, metaclass=Singleton):
                 widest_top_ads_surf_val = surf_value.get_width()
 
         # TOP QUERIES SURFACES
-        top_queries_height = 0
+        # top_queries_height = 0
         widest_top_queries_title_surf = 0
         top_queries_titles = []
         widest_top_queries_values_surf = 0
@@ -577,9 +577,9 @@ class PiHole(FullScreenPlugin, metaclass=Singleton):
         print("DOMAINS: {}-{}-{}-{}".format(sum_domains_hour0, sum_domains_hour1, sum_domains_hour2, sum_domains_hour3))
 
         domains_bargraph = self.build_bargraph((self.screen_width - self.screen_margin*2)/2 - x_spacer_small,
-                                           self.screen_height - self.screen_margin - current_y,
-                                           [{now_fmt: sum_domains_hour0}, {now_minus_one_fmt: sum_domains_hour1}, {now_minus_two_fmt: sum_domains_hour2}, {now_minus_three_fmt: sum_domains_hour3}],
-                                           "Domains Blocked by Hour")
+                                               self.screen_height - self.screen_margin - current_y,
+                                               [{now_fmt: sum_domains_hour0}, {now_minus_one_fmt: sum_domains_hour1}, {now_minus_two_fmt: sum_domains_hour2}, {now_minus_three_fmt: sum_domains_hour3}],
+                                               "Domains Blocked by Hour")
         current_x += (self.screen_width - self.screen_margin*2)/2 - x_spacer_small + x_spacer_small
         self.image.blit(domains_bargraph, (current_x, current_y))
 
@@ -665,7 +665,7 @@ class PiHole(FullScreenPlugin, metaclass=Singleton):
         for i in colors:
             try:
                 float_val = float(i["percent"])
-            except:
+            except ValueError:
                 float_val = -1.0
 
             w = width * (float_val/100)

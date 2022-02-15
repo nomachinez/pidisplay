@@ -7,7 +7,7 @@ class Plugin:
         self.helper = helper
         self.canvas = canvas
         self.debug = app_plugin_config.getboolean("debug")
-        self.plugin_config = self.get_config(plugin_path, app_plugin_config, type(self).__name__)
+        self.plugin_config = Plugin.get_config(plugin_path, app_plugin_config, type(self).__name__)
         self.screen_width = self.canvas.get_width()
         self.screen_height = self.canvas.get_height()
 
@@ -16,7 +16,7 @@ class Plugin:
         self.just_in = False
 
     def update(self, tick, fps):
-        pass
+        raise NotImplementedError("All plugins must override the update function!")
 
     @staticmethod
     def get_config(plugin_path, app_plugin_config, plugin_config_section):
