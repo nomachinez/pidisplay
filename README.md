@@ -201,7 +201,7 @@ reboot
 
 # Upgrade instructions
 1) Make sure to update/install the modules in steps 6 and 7, just in case they changed. Just re-run the commands.
-2) rename your config.ini file to config.ini.backup
+2) Rename your config.ini file to config.ini.backup
 3) Get the latest version by rerunning the git clone command in step 3.
 4) Review any changes to the config.ini file compared to your backup
 5) Add/Update the config settings in config.ini from your config.ini.backup file 
