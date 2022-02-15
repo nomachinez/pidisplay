@@ -78,6 +78,7 @@ Multiple widgets on the top and bottom (that can be independently turned on and 
   - **feedparser** is for the News Feed plugin
   - **pytz** is for the World Clock plugin
   - **requests** is for the Ticker, Pi-Hole, News Feed, Now Playing, System Info and OpenWeather Maps plugins. Probably already included on your system.
+  - **geopy** is for the Weather plugin, to get the latitude and longitude from the city name
   - **yfinance** is for the Ticker plugin
     - **numpy** yfinance requires this and is known to give Raspberry Pi folks trouble during installation. Follow the instructions below and you should be ok.
 - python3 pygame module and pygame's SDL2 bindings
@@ -139,7 +140,7 @@ sudo apt install libatlas3-base python3-pip python3-pygame python3-sdl2
 ````
 7. Install python modules to support the included plugins (required if you elect to use the respective module):
 ````commandline
-sudo pip3 install pillow spotipy feedparser psutil requests yfinance pytz
+sudo pip3 install pillow spotipy feedparser psutil requests yfinance pytz geopy
 ````
 8. In order to use Spotify you need to add the app to your Spotify account and generate an access token:
     * 1\) In the Spotify Developer Dashboard (https://developer.spotify.com/dashboard/applications) and log in.
@@ -225,12 +226,13 @@ widget_location = bottom
 ````
 
 # TODO
-
-- Add moon phase to weather
 - Fix the paddles in the pongclock. The paddles track the ball correctly only about 90% of the time.
-- Add location to weather plugin
 
 # Changelog
+15-02-2022
+- Added location to weather plugin
+- Add moon phase to weather
+
 13-02-2022
 - Added the WorldClock plugin
 - Added Digital Clock plugin

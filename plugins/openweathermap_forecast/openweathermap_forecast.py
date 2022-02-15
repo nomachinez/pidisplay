@@ -10,6 +10,7 @@ import os
 import time
 import requests
 import pygame
+import geopy
 import threading
 
 from lib.fullscreen_plugin import FullScreenPlugin
@@ -39,12 +40,18 @@ class OpenWeatherMap(FullScreenPlugin, metaclass=Singleton):
         self.foreground = eval(self.plugin_config["foreground"])
         self.background = eval(self.plugin_config["background"])
         self.apikey = self.plugin_config["apikey"]
-        self.test_mode = self.plugin_config.getboolean("test_mode")
         self.latitude = self.plugin_config["latitude"]
         self.longitude = self.plugin_config["longitude"]
         self.unit_type = self.plugin_config["unit_type"]
         self.language = self.plugin_config["language"]
         self.update_interval = self.plugin_config.getint("update_interval")
+        self.label = self.plugin_config["label"]
+        self.city = self.plugin_config["city"]
+
+        if not self.label:
+            self.label = self.city
+
+        self.got_longlat_from_city = False
 
     def download_weather(self):
         thread_timer = threading.Thread(target=self.download_weather_thread, args=([]))
@@ -53,10 +60,17 @@ class OpenWeatherMap(FullScreenPlugin, metaclass=Singleton):
 
     def download_weather_thread(self):
         # Update the weather
-        self.helper.log(self.debug, "WEATHER TEST MODE: {}".format(self.test_mode))
-
         if self.apikey == "":
             return
+
+        # Only need to do this once
+        if self.city and not self.got_longlat_from_city:
+            geoloc = geopy.Nominatim(user_agent="PiDisplay")
+            loc = geoloc.geocode(self.city)
+            if loc:
+                self.longitude = str(loc.longitude)
+                self.latitude = str(loc.latitude)
+                self.got_longlat_from_city = True
 
         my_url = self.url.replace("{lat}", self.latitude) \
             .replace("{lon}", self.longitude) \
@@ -64,24 +78,25 @@ class OpenWeatherMap(FullScreenPlugin, metaclass=Singleton):
             .replace("{units}", self.unit_type) \
             .replace("{lang}", self.language)
 
-        if self.test_mode:
-            response = r'{"lat":42.6334,"lon":-71.3162,"timezone":"America/New_York","timezone_offset":-18000,"current":{"dt":1642527953,"sunrise":1642507857,"sunset":1642542001,"temp":27.95,"feels_like":22.32,"pressure":1005,"humidity":47,"dew_point":12.25,"uvi":0.96,"clouds":40,"visibility":10000,"wind_speed":5.01,"wind_deg":356,"wind_gust":14,"weather":[{"id":802,"main":"Clouds","description":"scattered clouds","icon":"03d"}]},"hourly":[{"dt":1642525200,"temp":27.54,"feels_like":15.78,"pressure":1005,"humidity":48,"dew_point":12.29,"uvi":1.14,"clouds":44,"visibility":10000,"wind_speed":15.23,"wind_deg":292,"wind_gust":29.21,"weather":[{"id":802,"main":"Clouds","description":"scattered clouds","icon":"03d"}],"pop":0},{"dt":1642528800,"temp":27.95,"feels_like":16.34,"pressure":1005,"humidity":47,"dew_point":12.25,"uvi":0.96,"clouds":40,"visibility":10000,"wind_speed":15.14,"wind_deg":291,"wind_gust":28.43,"weather":[{"id":802,"main":"Clouds","description":"scattered clouds","icon":"03d"}],"pop":0},{"dt":1642532400,"temp":27.39,"feels_like":15.78,"pressure":1006,"humidity":48,"dew_point":12.15,"uvi":0.6,"clouds":37,"visibility":10000,"wind_speed":14.76,"wind_deg":289,"wind_gust":28.97,"weather":[{"id":802,"main":"Clouds","description":"scattered clouds","icon":"03d"}],"pop":0},{"dt":1642536000,"temp":26.2,"feels_like":14.43,"pressure":1007,"humidity":49,"dew_point":11.44,"uvi":0.27,"clouds":31,"visibility":10000,"wind_speed":14.36,"wind_deg":289,"wind_gust":29.93,"weather":[{"id":802,"main":"Clouds","description":"scattered clouds","icon":"03d"}],"pop":0},{"dt":1642539600,"temp":24.13,"feels_like":12.09,"pressure":1009,"humidity":50,"dew_point":9.9,"uvi":0,"clouds":27,"visibility":10000,"wind_speed":13.69,"wind_deg":292,"wind_gust":30.53,"weather":[{"id":802,"main":"Clouds","description":"scattered clouds","icon":"03d"}],"pop":0},{"dt":1642543200,"temp":21.45,"feels_like":9.03,"pressure":1011,"humidity":52,"dew_point":8.15,"uvi":0,"clouds":23,"visibility":10000,"wind_speed":12.95,"wind_deg":293,"wind_gust":29.8,"weather":[{"id":801,"main":"Clouds","description":"few clouds","icon":"02n"}],"pop":0},{"dt":1642546800,"temp":19.02,"feels_like":6.57,"pressure":1015,"humidity":52,"dew_point":3.54,"uvi":0,"clouds":15,"visibility":10000,"wind_speed":11.81,"wind_deg":289,"wind_gust":28.54,"weather":[{"id":801,"main":"Clouds","description":"few clouds","icon":"02n"}],"pop":0},{"dt":1642550400,"temp":18.3,"feels_like":6.31,"pressure":1016,"humidity":52,"dew_point":2.79,"uvi":0,"clouds":13,"visibility":10000,"wind_speed":10.69,"wind_deg":292,"wind_gust":28.5,"weather":[{"id":801,"main":"Clouds","description":"few clouds","icon":"02n"}],"pop":0},{"dt":1642554000,"temp":17.51,"feels_like":6.04,"pressure":1017,"humidity":52,"dew_point":1.71,"uvi":0,"clouds":1,"visibility":10000,"wind_speed":9.6,"wind_deg":293,"wind_gust":27.6,"weather":[{"id":800,"main":"Clear","description":"clear sky","icon":"01n"}],"pop":0},{"dt":1642557600,"temp":17.02,"feels_like":6.37,"pressure":1018,"humidity":51,"dew_point":0.73,"uvi":0,"clouds":0,"visibility":10000,"wind_speed":8.3,"wind_deg":288,"wind_gust":23.89,"weather":[{"id":800,"main":"Clear","description":"clear sky","icon":"01n"}],"pop":0},{"dt":1642561200,"temp":16.72,"feels_like":6.57,"pressure":1019,"humidity":50,"dew_point":0.32,"uvi":0,"clouds":2,"visibility":10000,"wind_speed":7.61,"wind_deg":271,"wind_gust":18.7,"weather":[{"id":800,"main":"Clear","description":"clear sky","icon":"01n"}],"pop":0},{"dt":1642564800,"temp":16.57,"feels_like":6.69,"pressure":1020,"humidity":51,"dew_point":0.37,"uvi":0,"clouds":4,"visibility":10000,"wind_speed":7.25,"wind_deg":264,"wind_gust":16.73,"weather":[{"id":800,"main":"Clear","description":"clear sky","icon":"01n"}],"pop":0},{"dt":1642568400,"temp":16.56,"feels_like":7.59,"pressure":1020,"humidity":52,"dew_point":0.77,"uvi":0,"clouds":5,"visibility":10000,"wind_speed":6.24,"wind_deg":259,"wind_gust":15.48,"weather":[{"id":800,"main":"Clear","description":"clear sky","icon":"01n"}],"pop":0},{"dt":1642572000,"temp":16.74,"feels_like":8.13,"pressure":1020,"humidity":54,"dew_point":1.76,"uvi":0,"clouds":6,"visibility":10000,"wind_speed":5.93,"wind_deg":252,"wind_gust":15.5,"weather":[{"id":800,"main":"Clear","description":"clear sky","icon":"01n"}],"pop":0},{"dt":1642575600,"temp":16.93,"feels_like":8.64,"pressure":1021,"humidity":55,"dew_point":2.48,"uvi":0,"clouds":58,"visibility":10000,"wind_speed":5.66,"wind_deg":247,"wind_gust":16.49,"weather":[{"id":803,"main":"Clouds","description":"broken clouds","icon":"04n"}],"pop":0},{"dt":1642579200,"temp":16.81,"feels_like":9.66,"pressure":1020,"humidity":56,"dew_point":2.55,"uvi":0,"clouds":40,"visibility":10000,"wind_speed":4.65,"wind_deg":249,"wind_gust":13.6,"weather":[{"id":802,"main":"Clouds","description":"scattered clouds","icon":"03n"}],"pop":0},{"dt":1642582800,"temp":16.93,"feels_like":9.88,"pressure":1020,"humidity":56,"dew_point":2.77,"uvi":0,"clouds":57,"visibility":10000,"wind_speed":4.59,"wind_deg":240,"wind_gust":13.85,"weather":[{"id":803,"main":"Clouds","description":"broken clouds","icon":"04n"}],"pop":0},{"dt":1642586400,"temp":17.73,"feels_like":10.78,"pressure":1020,"humidity":55,"dew_point":3.11,"uvi":0,"clouds":62,"visibility":10000,"wind_speed":4.61,"wind_deg":231,"wind_gust":15.03,"weather":[{"id":803,"main":"Clouds","description":"broken clouds","icon":"04n"}],"pop":0},{"dt":1642590000,"temp":19.38,"feels_like":12.04,"pressure":1020,"humidity":53,"dew_point":4.01,"uvi":0,"clouds":69,"visibility":10000,"wind_speed":5.19,"wind_deg":216,"wind_gust":21,"weather":[{"id":803,"main":"Clouds","description":"broken clouds","icon":"04n"}],"pop":0},{"dt":1642593600,"temp":20.8,"feels_like":13.41,"pressure":1019,"humidity":54,"dew_point":5.76,"uvi":0,"clouds":74,"visibility":10000,"wind_speed":5.48,"wind_deg":195,"wind_gust":26.69,"weather":[{"id":803,"main":"Clouds","description":"broken clouds","icon":"04n"}],"pop":0},{"dt":1642597200,"temp":23.56,"feels_like":15.19,"pressure":1018,"humidity":57,"dew_point":9.81,"uvi":0.12,"clouds":100,"visibility":10000,"wind_speed":7.18,"wind_deg":189,"wind_gust":32.53,"weather":[{"id":804,"main":"Clouds","description":"overcast clouds","icon":"04d"}],"pop":0},{"dt":1642600800,"temp":27.54,"feels_like":18.48,"pressure":1017,"humidity":64,"dew_point":16.57,"uvi":0.36,"clouds":100,"visibility":10000,"wind_speed":9.51,"wind_deg":196,"wind_gust":35.52,"weather":[{"id":804,"main":"Clouds","description":"overcast clouds","icon":"04d"}],"pop":0},{"dt":1642604400,"temp":32.52,"feels_like":23.59,"pressure":1016,"humidity":66,"dew_point":22.19,"uvi":0.67,"clouds":100,"visibility":10000,"wind_speed":11.63,"wind_deg":202,"wind_gust":38.05,"weather":[{"id":804,"main":"Clouds","description":"overcast clouds","icon":"04d"}],"pop":0},{"dt":1642608000,"temp":37.27,"feels_like":28.53,"pressure":1015,"humidity":58,"dew_point":23.59,"uvi":0.95,"clouds":100,"visibility":10000,"wind_speed":14.43,"wind_deg":209,"wind_gust":40.98,"weather":[{"id":804,"main":"Clouds","description":"overcast clouds","icon":"04d"}],"pop":0},{"dt":1642611600,"temp":40.28,"feels_like":32.2,"pressure":1013,"humidity":57,"dew_point":25.84,"uvi":1.02,"clouds":100,"visibility":10000,"wind_speed":14.99,"wind_deg":215,"wind_gust":41.52,"weather":[{"id":804,"main":"Clouds","description":"overcast clouds","icon":"04d"}],"pop":0},{"dt":1642615200,"temp":42.42,"feels_like":34.99,"pressure":1012,"humidity":57,"dew_point":27.81,"uvi":0.85,"clouds":99,"visibility":10000,"wind_speed":14.85,"wind_deg":218,"wind_gust":39.95,"weather":[{"id":804,"main":"Clouds","description":"overcast clouds","icon":"04d"}],"pop":0},{"dt":1642618800,"temp":43.16,"feels_like":36.19,"pressure":1011,"humidity":57,"dew_point":28.87,"uvi":0.6,"clouds":41,"visibility":10000,"wind_speed":13.96,"wind_deg":224,"wind_gust":39.55,"weather":[{"id":802,"main":"Clouds","description":"scattered clouds","icon":"03d"}],"pop":0},{"dt":1642622400,"temp":42.06,"feels_like":34.93,"pressure":1011,"humidity":59,"dew_point":28.49,"uvi":0.27,"clouds":46,"visibility":10000,"wind_speed":13.49,"wind_deg":229,"wind_gust":35.93,"weather":[{"id":802,"main":"Clouds","description":"scattered clouds","icon":"03d"}],"pop":0},{"dt":1642626000,"temp":39.7,"feels_like":32.38,"pressure":1011,"humidity":64,"dew_point":28.15,"uvi":0,"clouds":61,"visibility":10000,"wind_speed":12.24,"wind_deg":231,"wind_gust":32.19,"weather":[{"id":803,"main":"Clouds","description":"broken clouds","icon":"04d"}],"pop":0},{"dt":1642629600,"temp":37.67,"feels_like":30.15,"pressure":1012,"humidity":70,"dew_point":28.62,"uvi":0,"clouds":60,"visibility":10000,"wind_speed":11.43,"wind_deg":230,"wind_gust":30.85,"weather":[{"id":803,"main":"Clouds","description":"broken clouds","icon":"04n"}],"pop":0},{"dt":1642633200,"temp":36.91,"feels_like":29.43,"pressure":1013,"humidity":74,"dew_point":29.21,"uvi":0,"clouds":59,"visibility":10000,"wind_speed":10.87,"wind_deg":229,"wind_gust":31.43,"weather":[{"id":803,"main":"Clouds","description":"broken clouds","icon":"04n"}],"pop":0},{"dt":1642636800,"temp":36.43,"feels_like":29.05,"pressure":1013,"humidity":78,"dew_point":29.97,"uvi":0,"clouds":60,"visibility":10000,"wind_speed":10.38,"wind_deg":227,"wind_gust":31.65,"weather":[{"id":803,"main":"Clouds","description":"broken clouds","icon":"04n"}],"pop":0},{"dt":1642640400,"temp":36.34,"feels_like":29.16,"pressure":1013,"humidity":81,"dew_point":30.78,"uvi":0,"clouds":79,"visibility":10000,"wind_speed":9.89,"wind_deg":226,"wind_gust":31.16,"weather":[{"id":803,"main":"Clouds","description":"broken clouds","icon":"04n"}],"pop":0},{"dt":1642644000,"temp":36.61,"feels_like":29.71,"pressure":1013,"humidity":83,"dew_point":31.6,"uvi":0,"clouds":88,"visibility":10000,"wind_speed":9.44,"wind_deg":223,"wind_gust":29.24,"weather":[{"id":804,"main":"Clouds","description":"overcast clouds","icon":"04n"}],"pop":0},{"dt":1642647600,"temp":37.27,"feels_like":30.61,"pressure":1013,"humidity":83,"dew_point":32.43,"uvi":0,"clouds":92,"visibility":10000,"wind_speed":9.26,"wind_deg":226,"wind_gust":28.52,"weather":[{"id":804,"main":"Clouds","description":"overcast clouds","icon":"04n"}],"pop":0},{"dt":1642651200,"temp":37.24,"feels_like":30.58,"pressure":1014,"humidity":85,"dew_point":32.97,"uvi":0,"clouds":94,"visibility":10000,"wind_speed":9.24,"wind_deg":228,"wind_gust":28.39,"weather":[{"id":804,"main":"Clouds","description":"overcast clouds","icon":"04n"}],"pop":0},{"dt":1642654800,"temp":36.46,"feels_like":30.24,"pressure":1013,"humidity":89,"dew_point":33.28,"uvi":0,"clouds":95,"visibility":10000,"wind_speed":8.08,"wind_deg":231,"wind_gust":25.05,"weather":[{"id":804,"main":"Clouds","description":"overcast clouds","icon":"04n"}],"pop":0},{"dt":1642658400,"temp":35.64,"feels_like":29.75,"pressure":1014,"humidity":92,"dew_point":33.19,"uvi":0,"clouds":96,"visibility":10000,"wind_speed":7.2,"wind_deg":239,"wind_gust":24.2,"weather":[{"id":804,"main":"Clouds","description":"overcast clouds","icon":"04n"}],"pop":0},{"dt":1642662000,"temp":34.88,"feels_like":29.88,"pressure":1014,"humidity":93,"dew_point":32.83,"uvi":0,"clouds":100,"visibility":10000,"wind_speed":5.7,"wind_deg":257,"wind_gust":17.9,"weather":[{"id":804,"main":"Clouds","description":"overcast clouds","icon":"04n"}],"pop":0},{"dt":1642665600,"temp":34.61,"feels_like":28.78,"pressure":1014,"humidity":83,"dew_point":29.44,"uvi":0,"clouds":100,"visibility":10000,"wind_speed":6.8,"wind_deg":282,"wind_gust":18.81,"weather":[{"id":804,"main":"Clouds","description":"overcast clouds","icon":"04n"}],"pop":0},{"dt":1642669200,"temp":32.92,"feels_like":25.56,"pressure":1015,"humidity":74,"dew_point":25.25,"uvi":0,"clouds":100,"visibility":9781,"wind_speed":8.7,"wind_deg":286,"wind_gust":24.25,"weather":[{"id":804,"main":"Clouds","description":"overcast clouds","icon":"04n"}],"pop":0.15},{"dt":1642672800,"temp":29.61,"feels_like":21.72,"pressure":1016,"humidity":86,"dew_point":25.66,"uvi":0,"clouds":100,"visibility":1427,"wind_speed":8.34,"wind_deg":283,"wind_gust":24.25,"weather":[{"id":601,"main":"Snow","description":"snow","icon":"13n"}],"pop":0.65,"snow":{"1h":0.56}},{"dt":1642676400,"temp":28.8,"feels_like":21.76,"pressure":1017,"humidity":86,"dew_point":24.73,"uvi":0,"clouds":100,"visibility":3090,"wind_speed":6.85,"wind_deg":282,"wind_gust":22.41,"weather":[{"id":601,"main":"Snow","description":"snow","icon":"13n"}],"pop":0.76,"snow":{"1h":0.73}},{"dt":1642680000,"temp":28.33,"feels_like":21.52,"pressure":1017,"humidity":86,"dew_point":24.37,"uvi":0,"clouds":100,"visibility":1930,"wind_speed":6.4,"wind_deg":283,"wind_gust":20.22,"weather":[{"id":600,"main":"Snow","description":"light snow","icon":"13n"}],"pop":0.82,"snow":{"1h":0.47}},{"dt":1642683600,"temp":28.29,"feels_like":21.36,"pressure":1018,"humidity":86,"dew_point":24.33,"uvi":0.16,"clouds":100,"visibility":2348,"wind_speed":6.55,"wind_deg":287,"wind_gust":20.02,"weather":[{"id":600,"main":"Snow","description":"light snow","icon":"13d"}],"pop":0.93,"snow":{"1h":0.41}},{"dt":1642687200,"temp":28.69,"feels_like":21.87,"pressure":1018,"humidity":82,"dew_point":23.49,"uvi":0.47,"clouds":100,"visibility":10000,"wind_speed":6.53,"wind_deg":288,"wind_gust":16.22,"weather":[{"id":600,"main":"Snow","description":"light snow","icon":"13d"}],"pop":0.85,"snow":{"1h":0.32}},{"dt":1642690800,"temp":29.57,"feels_like":22.37,"pressure":1019,"humidity":73,"dew_point":21.49,"uvi":0.87,"clouds":100,"visibility":10000,"wind_speed":7.27,"wind_deg":303,"wind_gust":14.09,"weather":[{"id":804,"main":"Clouds","description":"overcast clouds","icon":"04d"}],"pop":0.76},{"dt":1642694400,"temp":30.94,"feels_like":23.11,"pressure":1019,"humidity":60,"dew_point":18.37,"uvi":1.31,"clouds":100,"visibility":10000,"wind_speed":8.72,"wind_deg":311,"wind_gust":13.71,"weather":[{"id":804,"main":"Clouds","description":"overcast clouds","icon":"04d"}],"pop":0.68}],"daily":[{"dt":1642521600,"sunrise":1642507857,"sunset":1642542001,"moonrise":1642544160,"moonset":1642510800,"moon_phase":0.52,"temp":{"day":27.09,"min":16.57,"max":29.12,"night":16.57,"eve":21.45,"morn":24.64},"feels_like":{"day":15.4,"night":6.69,"eve":9.03,"morn":12.2},"pressure":1005,"humidity":49,"dew_point":12.27,"wind_speed":15.23,"wind_deg":292,"wind_gust":34.16,"weather":[{"id":803,"main":"Clouds","description":"broken clouds","icon":"04d"}],"clouds":53,"pop":0,"uvi":1.14},{"dt":1642608000,"sunrise":1642594221,"sunset":1642628475,"moonrise":1642634460,"moonset":1642599240,"moon_phase":0.55,"temp":{"day":37.27,"min":16.56,"max":43.16,"night":37.24,"eve":37.67,"morn":17.73},"feels_like":{"day":28.53,"night":30.58,"eve":30.15,"morn":10.78},"pressure":1015,"humidity":58,"dew_point":23.59,"wind_speed":14.99,"wind_deg":215,"wind_gust":41.52,"weather":[{"id":804,"main":"Clouds","description":"overcast clouds","icon":"04d"}],"clouds":100,"pop":0,"uvi":1.02},{"dt":1642694400,"sunrise":1642680583,"sunset":1642714950,"moonrise":1642724880,"moonset":1642687380,"moon_phase":0.59,"temp":{"day":30.94,"min":16.5,"max":36.46,"night":16.5,"eve":22.35,"morn":29.61},"feels_like":{"day":23.11,"night":4.5,"eve":11.55,"morn":21.72},"pressure":1019,"humidity":60,"dew_point":18.37,"wind_speed":10.54,"wind_deg":328,"wind_gust":25.05,"weather":[{"id":601,"main":"Snow","description":"snow","icon":"13d"}],"clouds":100,"pop":0.93,"snow":2.49,"uvi":1.4},{"dt":1642780800,"sunrise":1642766943,"sunset":1642801425,"moonrise":1642815240,"moonset":1642775280,"moon_phase":0.62,"temp":{"day":12.97,"min":8.78,"max":18.86,"night":14.81,"eve":18.86,"morn":10.83},"feels_like":{"day":2.55,"night":7.81,"eve":11.48,"morn":-1.73},"pressure":1035,"humidity":46,"dew_point":-5.35,"wind_speed":9.82,"wind_deg":334,"wind_gust":20.13,"weather":[{"id":800,"main":"Clear","description":"clear sky","icon":"01d"}],"clouds":3,"pop":0,"uvi":1.29},{"dt":1642867200,"sunrise":1642853301,"sunset":1642887901,"moonrise":1642905720,"moonset":1642863060,"moon_phase":0.65,"temp":{"day":18.99,"min":12.72,"max":26.47,"night":21.76,"eve":26.47,"morn":13.59},"feels_like":{"day":11.82,"night":21.76,"eve":26.47,"morn":4.62},"pressure":1034,"humidity":59,"dew_point":6.26,"wind_speed":5.7,"wind_deg":356,"wind_gust":11.41,"weather":[{"id":802,"main":"Clouds","description":"scattered clouds","icon":"03d"}],"clouds":44,"pop":0,"uvi":2},{"dt":1642953600,"sunrise":1642939657,"sunset":1642974378,"moonrise":1642996200,"moonset":1642950780,"moon_phase":0.69,"temp":{"day":30.06,"min":20.75,"max":34.66,"night":28.69,"eve":32.25,"morn":21.11},"feels_like":{"day":25.72,"night":24.17,"eve":32.25,"morn":21.11},"pressure":1016,"humidity":69,"dew_point":20.75,"wind_speed":4.09,"wind_deg":159,"wind_gust":12.19,"weather":[{"id":600,"main":"Snow","description":"light snow","icon":"13d"}],"clouds":97,"pop":0.51,"snow":1.54,"uvi":2},{"dt":1643040000,"sunrise":1643026011,"sunset":1643060855,"moonrise":0,"moonset":1643038500,"moon_phase":0.72,"temp":{"day":27.81,"min":23.04,"max":30.11,"night":23.04,"eve":28.29,"morn":23.54},"feels_like":{"day":23.02,"night":18.14,"eve":22.69,"morn":17.71},"pressure":1007,"humidity":61,"dew_point":15.75,"wind_speed":5.03,"wind_deg":303,"wind_gust":12.59,"weather":[{"id":600,"main":"Snow","description":"light snow","icon":"13d"}],"clouds":100,"pop":0.39,"snow":0.17,"uvi":2},{"dt":1643126400,"sunrise":1643112362,"sunset":1643147332,"moonrise":1643086800,"moonset":1643126400,"moon_phase":0.75,"temp":{"day":16.27,"min":12.99,"max":21.29,"night":12.99,"eve":19.53,"morn":17.78},"feels_like":{"day":4.8,"night":2.25,"eve":8.24,"morn":8.17},"pressure":1015,"humidity":42,"dew_point":-4.04,"wind_speed":10.29,"wind_deg":292,"wind_gust":20.4,"weather":[{"id":803,"main":"Clouds","description":"broken clouds","icon":"04d"}],"clouds":66,"pop":0,"uvi":2}]}'
-            time.sleep(10)
-        else:
-            try:
-                r = requests.get(my_url)
-                response = r.text
-                r.close()
-            except requests.RequestException as e:
-                lock = threading.Lock()
-                lock.acquire()
-                self.helper.log(self.debug, "There was an error retrieving the weather: {}".format(e))
-                response = ""
-                lock.release()
+        http_status = ""
+        try:
+            r = requests.get(my_url)
+            response = r.text
+            http_status = r.status_code
+            r.close()
+        except requests.RequestException as e:
+            lock = threading.Lock()
+            lock.acquire()
+            self.helper.log(self.debug, "There was an error retrieving the weather: {}".format(e))
+            response = ""
+            lock.release()
 
         lock = threading.Lock()
         lock.acquire()
-        self.weather = self.parse_json_weather(json.loads(response))
+        if http_status == 200:
+            self.weather = self.parse_json_weather(json.loads(response))
+        else:
+            self.weather = False
         self.weather_updated = True
         self.helper.log(self.debug, "done getting weather!")
         lock.release()
@@ -92,11 +107,16 @@ class OpenWeatherMap(FullScreenPlugin, metaclass=Singleton):
             self.timer = int(time.time() * 1000)
 
         if self.weather_updated:
-            if "current" in self.weather and len(self.weather["current"]) > 0:
-                self.canvas.fill(self.background)
+            if not self.weather:
+                surf_error = self.small_font.render("Oops! There was a problem retrieving the weather!", True, self.foreground)
+                surf_error1 = self.small_font.render("(check the city and/or longitude/latitude in the config)", True, self.foreground)
 
-                current_weather_surface, start_y = self.get_current_weather_surface(self.weather)
-                self.canvas.blit(current_weather_surface, (0, 0))
+                self.canvas.fill(self.background)
+                self.canvas.blit(surf_error, (self.canvas.get_width()/2 - surf_error.get_width()/2, self.canvas.get_height()/2 - surf_error.get_height()))
+                self.canvas.blit(surf_error1, (self.canvas.get_width()/2 - surf_error.get_width()/2, self.canvas.get_height()/2))
+
+            elif "current" in self.weather and len(self.weather["current"]) > 0:
+                self.canvas.fill(self.background)
 
                 _line_buffer = self.canvas.get_height()/10
                 _line_color = pygame.Vector3(self.foreground)
@@ -104,20 +124,34 @@ class OpenWeatherMap(FullScreenPlugin, metaclass=Singleton):
                 _line_width = 2
 
                 # TODAY'S DATE ------------
-                day = '{} {dt.day} {dt.year}'.format(self.weather["current"]["date"].strftime("%A, %b"),
-                                                     dt=self.weather["current"]["date"])
+                day = '{} {dt.day} {dt.year}'.format(self.weather["current"]["date"].strftime("%A, %b"), dt=self.weather["current"]["date"])
 
                 surf_todays_date = self.small_font.render(day, True, self.foreground)
-                self.canvas.blit(surf_todays_date, (self.screen_width/4 - surf_todays_date.get_width()/2,
-                                               start_y/2 - surf_todays_date.get_height()/2))
+
+                surf_label_height = 0
+                surf_label = None
+                if self.label:
+                    surf_label = self.smaller_font.render(self.label, True, self.foreground)
+                    surf_label_height = surf_label.get_height()
+
+                current_weather_surface = self.get_current_weather_surface(self.weather)
+
+                y = self.canvas.get_height()/2 - (surf_todays_date.get_height() + surf_label_height + current_weather_surface.get_height())/2
+                self.canvas.blit(surf_todays_date, (self.screen_width/4 - surf_todays_date.get_width()/2, y))
+
+                y += surf_todays_date.get_height() + 5
+                if surf_label:
+                    self.canvas.blit(surf_label, (current_weather_surface.get_width() / 2 - surf_label.get_width() / 2, y))
+                    y += surf_label_height
+
+                self.canvas.blit(current_weather_surface, (0, y))
 
                 # ALL THE REST -------------
                 future_hours_surface = self.get_future_hours_surface(self.weather)
                 future_days_surface = self.get_future_days_surface(self.weather)
 
                 surface_size = _line_buffer + future_hours_surface.get_height() + future_days_surface.get_height()
-                y = current_weather_surface.get_height() - surface_size - \
-                    ((current_weather_surface.get_height() - surface_size)/2)
+                y = self.canvas.get_height() - surface_size - ((self.canvas.get_height() - surface_size)/2)
 
                 self.canvas.blit(future_hours_surface, (self.screen_width/2, y))
 
@@ -144,8 +178,7 @@ class OpenWeatherMap(FullScreenPlugin, metaclass=Singleton):
                     surf_error = self.small_font.render("Retrieving weather...", True, self.foreground)
 
                 self.canvas.fill(self.background)
-                self.canvas.blit(surf_error, (self.canvas.get_width()/2 - surf_error.get_width()/2,
-                                         self.canvas.get_height()/2 - surf_error.get_height()/2))
+                self.canvas.blit(surf_error, (self.canvas.get_width()/2 - surf_error.get_width()/2, self.canvas.get_height()/2 - surf_error.get_height()/2))
 
     def get_future_hours_surface(self, weather):
         now = datetime.datetime.now()
@@ -153,24 +186,21 @@ class OpenWeatherMap(FullScreenPlugin, metaclass=Singleton):
         surf_hours1 = None
         for i in weather["hourly"]:
             weather_hour = weather["hourly"][i]
-            if weather_hour["date"].day == hour1.day and weather_hour["date"].month == hour1.month and \
-                    weather_hour["date"].year == hour1.year and weather_hour["date"].hour == hour1.hour:
+            if weather_hour["date"].day == hour1.day and weather_hour["date"].month == hour1.month and weather_hour["date"].year == hour1.year and weather_hour["date"].hour == hour1.hour:
                 surf_hours1 = self.make_hour_surface(weather_hour, self.smaller_font, (self.screen_width / 2) / 3)
                 break
         hour2 = now + datetime.timedelta(hours=3)
         surf_hours2 = None
         for i in weather["hourly"]:
             weather_hour = weather["hourly"][i]
-            if weather_hour["date"].day == hour2.day and weather_hour["date"].month == hour2.month and \
-                    weather_hour["date"].year == hour2.year and weather_hour["date"].hour == hour2.hour:
+            if weather_hour["date"].day == hour2.day and weather_hour["date"].month == hour2.month and weather_hour["date"].year == hour2.year and weather_hour["date"].hour == hour2.hour:
                 surf_hours2 = self.make_hour_surface(weather_hour, self.smaller_font, (self.screen_width / 2) / 3)
                 break
         hour3 = now + datetime.timedelta(hours=5)
         surf_hours3 = None
         for i in weather["hourly"]:
             weather_hour = weather["hourly"][i]
-            if weather_hour["date"].day == hour3.day and weather_hour["date"].month == hour3.month and \
-                    weather_hour["date"].year == hour3.year and weather_hour["date"].hour == hour3.hour:
+            if weather_hour["date"].day == hour3.day and weather_hour["date"].month == hour3.month and weather_hour["date"].year == hour3.year and weather_hour["date"].hour == hour3.hour:
                 surf_hours3 = self.make_hour_surface(weather_hour, self.smaller_font, (self.screen_width / 2) / 3)
                 break
 
@@ -210,24 +240,21 @@ class OpenWeatherMap(FullScreenPlugin, metaclass=Singleton):
         surf_day1 = None
         for i in weather["daily"]:
             weather_day = weather["daily"][i]
-            if weather_day["date"].day == day1.day and weather_day["date"].month == day1.month and \
-                    weather_day["date"].year == day1.year:
+            if weather_day["date"].day == day1.day and weather_day["date"].month == day1.month and weather_day["date"].year == day1.year:
                 surf_day1 = self.make_day_surface(weather_day, self.smaller_font, (self.screen_width / 2) / 3)
                 break
         day2 = now + datetime.timedelta(days=2)
         surf_day2 = None
         for i in weather["daily"]:
             weather_day = weather["daily"][i]
-            if weather_day["date"].day == day2.day and weather_day["date"].month == day2.month and \
-                    weather_day["date"].year == day2.year:
+            if weather_day["date"].day == day2.day and weather_day["date"].month == day2.month and weather_day["date"].year == day2.year:
                 surf_day2 = self.make_day_surface(weather_day, self.smaller_font, (self.screen_width / 2) / 3)
                 break
         day3 = now + datetime.timedelta(days=3)
         surf_day3 = None
         for i in weather["daily"]:
             weather_day = weather["daily"][i]
-            if weather_day["date"].day == day3.day and weather_day["date"].month == day3.month and \
-                    weather_day["date"].year == day3.year:
+            if weather_day["date"].day == day3.day and weather_day["date"].month == day3.month and weather_day["date"].year == day3.year:
                 surf_day3 = self.make_day_surface(weather_day, self.smaller_font, (self.screen_width / 2) / 3)
                 break
 
@@ -262,20 +289,17 @@ class OpenWeatherMap(FullScreenPlugin, metaclass=Singleton):
 
     def get_current_weather_surface(self, weather):
         _line_buffer = 20
-        current_weather_surface = pygame.Surface((self.screen_width/2, self.screen_height))
-        current_weather_surface.fill(self.background)
 
+        surface_width = self.screen_width/2
         # CURRENT WEATHER ICON -----
         surf_current_icon = pygame.image.load(weather["current"]["icon_path"]).convert_alpha()
 
-        ratio = (current_weather_surface.get_width()*1.0/3) / surf_current_icon.get_width()
+        ratio = (surface_width*1.0/3) / surf_current_icon.get_width()
         icon_height = int(surf_current_icon.get_height() * ratio)
-        surf_current_icon = pygame.transform.scale(surf_current_icon,
-                                                   (int((surf_current_icon.get_width()*1.0)*ratio), icon_height))
+        surf_current_icon = pygame.transform.scale(surf_current_icon, (int((surf_current_icon.get_width()*1.0)*ratio), icon_height))
 
         # CURRENT TEMP --------
-        surf_current_temp = self.large_font.render(u"{}{}".format(str(weather["current"]["temp"]), u'\N{DEGREE SIGN}'),
-                                                   True, self.foreground)
+        surf_current_temp = self.large_font.render(u"{}{}".format(str(weather["current"]["temp"]), u'\N{DEGREE SIGN}'), True, self.foreground)
 
         # CURRENT HIGH/LOW -------------
         surf_degree_sign = self.small_font.render(u"{}".format(u'\N{DEGREE SIGN}'), True, self.foreground)
@@ -320,14 +344,11 @@ class OpenWeatherMap(FullScreenPlugin, metaclass=Singleton):
             row1_height = surf_current_highlow.get_height()
 
         # RAIN ICON -----------------
-        surf_rain_chance = self.make_small_icon_text(self.plugin_config["weather_icons_rain"],
-                                                     "{}%".format(weather["current"]["rain"]), self.small_font)
+        surf_rain_chance = self.make_small_icon_text(self.plugin_config["weather_icons_rain"], "{}%".format(weather["current"]["rain"]), self.small_font)
         # WIND SPEED ICON -------------
-        surf_wind_speed = self.make_small_icon_text(self.plugin_config["weather_icons_wind_speed"],
-                                                    "{}mph".format(weather["current"]["wind_speed"]), self.small_font)
+        surf_wind_speed = self.make_small_icon_text(self.plugin_config["weather_icons_wind_speed"], "{}mph".format(weather["current"]["wind_speed"]), self.small_font)
         # HUMIDITY ICON -------------------
-        surf_humidity = self.make_small_icon_text(self.plugin_config["weather_icons_humidity"],
-                                                  "{}%".format(weather["current"]["humidity"]), self.small_font)
+        surf_humidity = self.make_small_icon_text(self.plugin_config["weather_icons_humidity"], "{}%".format(weather["current"]["humidity"]), self.small_font)
 
         if surf_rain_chance.get_height() > surf_wind_speed.get_height():
             row2_height = surf_rain_chance.get_height()
@@ -355,40 +376,52 @@ class OpenWeatherMap(FullScreenPlugin, metaclass=Singleton):
         else:
             row3_height = surf_sunrise.get_height()
 
-        surface_size = (_line_buffer * 2) + row1_height + row2_height + row3_height
-        start_y = current_weather_surface.get_height() - surface_size - ((current_weather_surface.get_height() -
-                                                                          surface_size)/2)
+        moon_phase_percent = int(weather["current"]["moon_phase"] * 100)
+        text = "{}% of new moon".format(moon_phase_percent)
+        surf_moon_icon = self.make_small_icon_text(weather["current"]["moon_phase_icon_path"], text, self.smaller_font)
+        row4_height = surf_moon_icon.get_height()
 
-        y = start_y
-        current_weather_surface.blit(surf_current_icon, (current_weather_surface.get_width() / 2 -
-                                                         surf_current_icon.get_width() / 2, y))
+        surface_height = (_line_buffer * 3) + row1_height + row2_height + row3_height + row4_height
+        current_weather_surface = pygame.Surface((surface_width, surface_height))
+        current_weather_surface.fill(self.background)
 
+        y = 0
         _large_icon_spacer = 20
-        x = current_weather_surface.get_width() / 2 + surf_current_icon.get_width() / 2 + _large_icon_spacer
-        current_weather_surface.blit(surf_current_temp, (x, y + row1_height/2 - surf_current_temp.get_height()/2))
-        x = current_weather_surface.get_width() / 2 - surf_current_icon.get_width() / 2 - _large_icon_spacer - \
-            surf_current_highlow.get_width()
+        w = surf_current_highlow.get_width() + _large_icon_spacer + surf_current_icon.get_width() + _large_icon_spacer + surf_current_temp.get_width()
+        x = current_weather_surface.get_width() / 2 - w/2
         current_weather_surface.blit(surf_current_highlow, (x, y + row1_height/2 - surf_current_highlow.get_height()/2))
+        x += surf_current_highlow.get_width() + _large_icon_spacer
+        current_weather_surface.blit(surf_current_icon, (x, y))
+        x += surf_current_icon.get_width() + _large_icon_spacer
+        current_weather_surface.blit(surf_current_temp, (x, y + row1_height/2 - surf_current_temp.get_height()/2))
 
         y += row1_height + _line_buffer
 
-        _small_icon_spacer = 30
-        x = current_weather_surface.get_width() / 2 - surf_wind_speed.get_width()/2 - surf_rain_chance.get_width() - \
-            _small_icon_spacer
+        spacer = 0
+        w = surf_rain_chance.get_width() + surf_wind_speed.get_width() + surf_humidity.get_width()
+        if w < current_weather_surface.get_width():
+            spacer = int((current_weather_surface.get_width() - w - 20) / 2)
+            w += spacer*2
+
+        x = current_weather_surface.get_width() / 2 - w/2
         current_weather_surface.blit(surf_rain_chance, (x, y))
-        x = current_weather_surface.get_width() / 2 - surf_wind_speed.get_width()/2
+        x += surf_rain_chance.get_width() + spacer
         current_weather_surface.blit(surf_wind_speed, (x, y))
-        x = current_weather_surface.get_width() / 2 + surf_wind_speed.get_width()/2 + _small_icon_spacer
+        x += surf_wind_speed.get_width() + spacer
         current_weather_surface.blit(surf_humidity, (x, y))
 
         y += row2_height + _line_buffer
 
+        _small_icon_spacer = 30
         x = current_weather_surface.get_width() / 2 - _small_icon_spacer/2 - surf_sunrise.get_width()
         current_weather_surface.blit(surf_sunrise, (x,  y))
         x = current_weather_surface.get_width() / 2 + _small_icon_spacer/2
         current_weather_surface.blit(surf_sunset, (x, y))
 
-        return current_weather_surface, start_y
+        y += row3_height + _line_buffer
+        current_weather_surface.blit(surf_moon_icon, (current_weather_surface.get_width() / 2 - surf_moon_icon.get_width()/2, y))
+
+        return current_weather_surface
 
     def make_small_icon_text(self, icon_path, icon_text, font):
         _buffer = 5
@@ -535,9 +568,8 @@ class OpenWeatherMap(FullScreenPlugin, metaclass=Singleton):
 
         weather["current"].update({"icon_path": current_icon_path})
         weather["current"].update({"temp": 0})
-        if "current" in json_weather:
-            if "temp" in json_weather["current"]:
-                weather["current"]["temp"] = int(json_weather["current"]["temp"])
+        if "temp" in json_weather["current"]:
+            weather["current"]["temp"] = int(json_weather["current"]["temp"])
 
         if "sunrise" in json_weather["current"]:
             try:
@@ -586,6 +618,8 @@ class OpenWeatherMap(FullScreenPlugin, metaclass=Singleton):
                                               if "wind_speed" in i else "0"})
 
                     weather["current"].update({"description": ""})
+                    weather["current"].update({"moon_phase": float(i["moon_phase"])})
+
                     if "weather" in i:
                         for j in range(len(i["weather"])):
                             if "description" in i["weather"][j]:
@@ -623,6 +657,7 @@ class OpenWeatherMap(FullScreenPlugin, metaclass=Singleton):
                                 daily["description"] = self.helper.upper_first_char(i["weather"][0]["description"].split(".")[0])
                                 break
 
+                    daily.update({"moon_phase": float(i["moon_phase"])})
                     weather["daily"].update({i["dt"]: daily})
 
         if "hourly" in json_weather:
@@ -656,5 +691,22 @@ class OpenWeatherMap(FullScreenPlugin, metaclass=Singleton):
                             break
 
                 weather["hourly"].update({i["dt"]: hourly})
+
+        moon_phase_icon_path = ""
+        if "moon_phase" in weather["current"]:
+            moon_phase_percent = int(weather["current"]["moon_phase"] * 100)
+            moon_phase_key = "weather_icons_moon_phase_{0:03d}".format(moon_phase_percent)
+            if moon_phase_key in self.plugin_config:
+                moon_phase_icon_path = os.path.join(self.icons_folder, "moon_phases", self.plugin_config[moon_phase_key])
+            else:
+                # try to figure it out
+                if moon_phase_percent > 0:
+                    for j in range(moon_phase_percent, 0, -1):
+                        moon_phase_key = "weather_icons_moon_phase_{0:03d}".format(j)
+                        if moon_phase_key in self.plugin_config:
+                            moon_phase_icon_path = os.path.join(self.icons_folder, "moon_phases", self.plugin_config[moon_phase_key])
+                            break
+        if moon_phase_icon_path:
+            weather["current"].update({"moon_phase_icon_path": moon_phase_icon_path})
 
         return weather
