@@ -289,7 +289,7 @@ class NowPlaying(FullScreenPlugin, metaclass=Singleton):
         scope = self.scope
         redirect_uri = self.redirect_uri
 
-        handler = CacheFileHandler(cache_path=os.getcwd(), username=username)
+        handler = CacheFileHandler(cache_path=os.path.join(os.getcwd(), ".cache-{}".format(username)), username=username)
         credential_manager = SpotifyPKCE(scope=scope, open_browser=False, client_id=client_id,
                                          state=state, redirect_uri=redirect_uri, cache_handler=handler)
         sp = Spotify(client_credentials_manager=credential_manager)
