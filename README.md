@@ -4,8 +4,8 @@
 - [Screenshots](#Screenshots)
 - [Requirements](#Requirements)
 - [Installation Instructions](#Installation)
-- [Upgrade Instructions](#Upgrade instructions)
-- [Instructions for adding multiple widgets on the top and bottom](#IInstructions for adding multiple widgets on the top and bottom (e.g., Ticker))
+- [Upgrade Instructions](#upgrade-instructions)
+- [Instructions for adding multiple widgets on the top and bottom](#instructions-for-adding-multiple-widgets-on-the-top-and-bottom-eg-ticker)
 - [TODO](#TODO)
 - [Changelog](#Changelog)
 
