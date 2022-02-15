@@ -232,6 +232,7 @@ widget_location = bottom
 15-02-2022
 - Added location to weather plugin
 - Add moon phase to weather
+- Added 12/24 hour clock option to the digital clock
 
 13-02-2022
 - Added the WorldClock plugin
