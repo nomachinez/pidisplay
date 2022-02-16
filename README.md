@@ -5,7 +5,7 @@
 - [Requirements](#Requirements)
 - [Installation Instructions](#Installation)
 - [Upgrade Instructions](#upgrade-instructions)
-- [Instructions for adding multiple widgets on the top and bottom](#instructions-for-adding-multiple-widgets-on-the-top-and-bottom-eg-ticker)
+- [Instructions for adding multiples of the same plugin](#Instructions-for-adding-multiples-of-the-same-plugin)
 - [TODO](#TODO)
 - [Changelog](#Changelog)
 
@@ -206,11 +206,11 @@ reboot
 4) Review any changes to the config.ini file compared to your backup
 5) Add/Update the config settings in config.ini from your config.ini.backup file 
 
-# Instructions for adding multiple widgets on the top and bottom (e.g., Ticker)
+# Instructions for adding multiples of the same plugin
 6) Open up the main config.ini file in ./pidisplay/config.ini
 7) Copy the section you want to duplicate and paste it back in, so now you have 2 of them.
 8) Change the section title of the second one to something different
-9) Modify any settings you choose.
+9) Modify any settings you choose but keep the "class" setting the same
 e.g.
 ````commandline
 .....SNIP......
@@ -244,7 +244,7 @@ widget_location = bottom
 ````
 
 # TODO
-- Fix the paddles in the pongclock. The paddles track the ball correctly only about 90% of the time.
+- Fix the paddles in the pongclock. The paddles track the ball correctly only about 95% of the time.
 
 # Changelog
 15-02-2022
