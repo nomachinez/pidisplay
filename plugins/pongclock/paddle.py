@@ -1,4 +1,5 @@
 """ Create a Paddle sprite """
+import math
 import random
 import pygame
 
@@ -31,7 +32,6 @@ class Paddle(pygame.sprite.DirtySprite):
         elif side == self.helper.RIGHT:
             self.rect.left = self.screen_width - self.screen_margin - self.paddle_width
 
-        self.velocity = 0.0
         self.game_ball = game_ball
         self.side = side
         self.dirty = 1  # Paddle is not always moving
@@ -50,7 +50,6 @@ class Paddle(pygame.sprite.DirtySprite):
         self.random_factor = 0
         self.real_y_updated = False
         self.my_real_y = 0
-        self.velocity = 0.0
         self.helper.log(self.debug, "HIT or RESET: {}".format(self.side))
 
     def update_real_y_for_losing(self):
@@ -113,13 +112,12 @@ class Paddle(pygame.sprite.DirtySprite):
                     self.update_real_y_for_screen_edge()
                         
                     # now figure out how much we have to move
-                    distance = (self.my_real_y - (self.rect.top + self.rect.height/2)) / self.paddle_speed_factor
-                        
-                    self.velocity = distance
+                    distance = math.ceil((self.my_real_y - (self.rect.top + self.rect.height/2)) / self.paddle_speed_factor)
+
                     if self.rect.top - self.rect.height/2 == self.my_real_y:
                         self.helper.log(self.debug, "We're here. {}".format(self.side))
                     else:
-                        self.rect.move_ip(0, self.velocity)
+                        self.rect.move_ip(0, distance)
                         self.dirty = 1
 
         canvas.blit(self.image, self.rect)

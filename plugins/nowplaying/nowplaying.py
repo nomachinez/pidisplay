@@ -6,7 +6,6 @@ Now Playing
 import datetime
 import hashlib
 import io
-import json
 import os
 import threading
 import time

@@ -30,12 +30,14 @@ class Ball(pygame.sprite.DirtySprite):
         self._just_lost = False
         self._lose_side = ""
 
-        self.playscreen_height = self.screen_height - (3 * self.screen_margin) - self.digit_height
-        self.playscreen_width = 0
+        self.y_distance_to_go = self.screen_height - (3 * self.screen_margin) - self.digit_height
+        # self.playscreen_width = 0
+        self.x_distance_to_go = 0
         
         self._bounced = False
 
         self.reset(velocity)
+        self.current_slope = 0.0
 
     def reset(self, velocity):
         """ Resets the location of the ball to the middle of the playing field """
@@ -89,17 +91,18 @@ class Ball(pygame.sprite.DirtySprite):
         """ Overridden update method """
         self.rect.move_ip(self.velocity)
         self._bounced = False
-        
         if self.rect.top <= self.screen_margin * 2 + self.digit_height:
             # BOUNCED ON TOP
             self.helper.log(self.debug, "BOUNCED")
             self.rect.top = self.screen_margin * 2 + self.digit_height
-            self.velocity[1] *= -1            
+            self.velocity[1] *= -1
+            self._bounced = True
         elif self.rect.bottom >= self.screen_height - self.screen_margin:
             # BOUNCED ON BOTTOM
             self.helper.log(self.debug, "BOUNCED")
             self.rect.top = self.screen_height - self.screen_margin - self.ball_width
             self.velocity[1] *= -1
+            self._bounced = True
         elif self.rect.left <= self.screen_margin + self.paddle_width:
             # BOUNCED ON LEFT
             if self._lose_side == self.helper.LEFT:
@@ -109,6 +112,7 @@ class Ball(pygame.sprite.DirtySprite):
                 # Not time to lose.  Just bounce the ball
                 self.rect.left = self.screen_margin + self.paddle_width
                 self.velocity[0] *= -1
+                self.helper.log(self.debug, "---NEW velocity from bounce X,Y={},{}".format(self.velocity[0], self.velocity[1]))
                 self._bounced = True
                 self.helper.log(self.debug, "BOUNCED")
 
@@ -122,38 +126,40 @@ class Ball(pygame.sprite.DirtySprite):
                 # No time to lose.  Just bounce the ball
                 self.rect.left = self.screen_width - self.screen_margin - self.paddle_width - self.ball_width
                 self.velocity[0] *= -1
+                self.helper.log(self.debug, "---NEW velocity from bounce X,Y={},{}".format(self.velocity[0], self.velocity[1]))
                 self._bounced = True
                 self.helper.log(self.debug, "BOUNCED")
 
         if self._bounced or self.firstrun:
-            # now figure it where it's going to end up on the other side of the play field
+            # now figure out where it's going to end up on the other side of the play field
+            # TODO: There's a problem where the ball doesn't always hit where it says its going to. Maybe has to do
+            #  with the fps and the timing of the calculations and/or rounding, maybe just when it hits the top or bottom?
 
-            slope = (self.velocity[1] * 1.0) / (self.velocity[0] * 1.0)
+            self.current_slope = (self.velocity[1] * 1.0) / (self.velocity[0] * 1.0)
             if self.velocity[0] < 0:
-                slope *= -1.0
+                self.current_slope *= -1.0
 
-            self.playscreen_height = self.screen_height - (3 * self.screen_margin) - self.digit_height
-            
-            if self.firstrun:
-                self.playscreen_width = self.screen_width/2 - (self.screen_margin - self.paddle_width)
+            self.y_distance_to_go = self.screen_height - (3 * self.screen_margin) - self.digit_height
+
+            if self.velocity[0] < 0:
+                self.x_distance_to_go = self.rect.left - self.screen_margin - self.paddle_width
             else:
-                self.playscreen_width = self.screen_width - self.screen_margin*2 - self.paddle_width*2
-            
+                self.x_distance_to_go = self.screen_width - self.screen_margin - self.paddle_width - self.rect.left - self.ball_width
+
             self.firstrun = False
 
-            ball_projected_y = self.rect.top - (self.screen_margin*2 + self.digit_height)
-            expanded_projected_y = (slope * (self.playscreen_width*1.0)) + (ball_projected_y*1.0)
+            ball_projected_y = self.rect.top - (self.screen_margin * 2 + self.digit_height)
+            expanded_projected_y = (self.current_slope * (self.x_distance_to_go*1.0)) + (ball_projected_y*1.0)
 
-            bounces = math.floor(expanded_projected_y / (self.playscreen_height*1.0))
+            bounces = math.floor(expanded_projected_y / (self.y_distance_to_go*1.0))
 
-            projected_y = expanded_projected_y % (self.playscreen_height*1.0)
+            projected_y = expanded_projected_y % (self.y_distance_to_go*1.0)
 
             if bounces % 2 == 1:
-                projected_y = self.playscreen_height - projected_y
+                projected_y = self.y_distance_to_go - projected_y
 
             # project it onto the surface coords
             self._hity = projected_y + (self.screen_margin * 2) + self.digit_height + self.ball_width/2
             self.helper.log(self.debug, "set hity to: {}".format(self._hity))
 
-        # self.surface.blit(canvas, (0, 0))
         canvas.blit(self.image, self.rect)

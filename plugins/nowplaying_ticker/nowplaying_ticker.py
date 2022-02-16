@@ -7,7 +7,6 @@ from __future__ import print_function
 
 import datetime
 import hashlib
-import json
 import threading
 import time
 

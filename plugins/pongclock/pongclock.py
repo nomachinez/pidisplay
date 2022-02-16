@@ -60,9 +60,9 @@ class PongClock(FullScreenPlugin, metaclass=Singleton):
                                                                      self.plugin_config.getint("min_vertical_velocity"),
                                                                      self.plugin_config.getint("max_horizontal_velocity"),
                                                                      self.plugin_config.getint("max_vertical_velocity"))
+        print("Velocity X,Y={},{}".format(random_velocity_x, random_velocity_y))
 
-        self.game_ball = Ball(self.debug, self.plugin_config, self.helper, (random_velocity_x, random_velocity_y),
-                              self.canvas.get_width(), self.canvas.get_height())
+        self.game_ball = Ball(self.debug, self.plugin_config, self.helper, (random_velocity_x, random_velocity_y), self.canvas.get_width(), self.canvas.get_height())
 
         self.left_paddle = Paddle(self.debug, self.plugin_config, self.helper, self.helper.LEFT, self.game_ball,
                                   self.canvas.get_width(), self.canvas.get_height())
@@ -140,10 +140,10 @@ class PongClock(FullScreenPlugin, metaclass=Singleton):
             if self.game_ball.direction == self.helper.RIGHT:
                 pygame.draw.rect(self.canvas, self.helper.RED,
                                  pygame.Rect(self.canvas.get_width() - 30, self.game_ball.hity, 30,
-                                             self.plugin_config.getint("screen_margin")))
+                                             2))
             else:
                 pygame.draw.rect(self.canvas, self.helper.RED,
-                                 pygame.Rect(0, self.game_ball.hity, 30, self.plugin_config.getint("screen_margin")))
+                                 pygame.Rect(0, self.game_ball.hity, 30, 2))
 
         if self.game_ball.just_lost:
             self.helper.log(self.debug, "ball just lost... resetting.")
@@ -163,6 +163,7 @@ class PongClock(FullScreenPlugin, metaclass=Singleton):
                                                                          self.plugin_config.getint("max_horizontal_velocity"),
                                                                          self.plugin_config.getint("max_vertical_velocity"))
 
+            print("Velocity X,Y={},{}".format(random_velocity_x, random_velocity_y))
             self.game_ball.reset((random_velocity_x, random_velocity_y))
             self.left_paddle.reset()
             self.right_paddle.reset()

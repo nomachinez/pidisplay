@@ -177,6 +177,6 @@ def get_subnet_mask_bits(subnet_mask):
         socket.inet_aton(subnet_mask)
         cidr = ipaddress.IPv4Network("0.0.0.0/{}".format(subnet_mask)).prefixlen
     except Exception:
-        print("BAD SUBNET MASK ")
+        print("BAD SUBNET MASK: {}".format(subnet_mask))
 
     return cidr

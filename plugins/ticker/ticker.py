@@ -9,7 +9,6 @@ import pygame
 import yfinance
 import requests
 import time
-import json
 import threading
 import locale
 

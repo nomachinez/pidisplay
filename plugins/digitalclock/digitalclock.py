@@ -81,4 +81,3 @@ class DigitalClock(FullScreenPlugin, metaclass=Singleton):
         surf_text = self.font.render(now.strftime(self.date_format), True, self.fg_color)
 
         self.canvas.blit(surf_text, (self.canvas.get_width() / 2 - surf_text.get_width() / 2, self.canvas.get_height() / 2 - surf_text.get_height() / 2))
-
