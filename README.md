@@ -236,7 +236,7 @@ widget_location = top
 
 [ticker2]
 class = Ticker
-tickers = [ada-usd", "eth-usd", "btc-usd"]
+tickers = ["ada-usd", "eth-usd", "btc-usd"]
 speed = -2
 widget_location = bottom
 
