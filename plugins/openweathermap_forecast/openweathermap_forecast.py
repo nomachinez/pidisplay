@@ -377,7 +377,27 @@ class OpenWeatherMap(FullScreenPlugin, metaclass=Singleton):
             row3_height = surf_sunrise.get_height()
 
         moon_phase_percent = int(weather["current"]["moon_phase"] * 100)
-        text = "{}% of new moon".format(moon_phase_percent)
+        if moon_phase_percent == 0:
+            text = "New Moon"
+        elif moon_phase_percent < 25:
+            text = "Waxing Crescent ({}%)".format(moon_phase_percent)
+        elif moon_phase_percent == 25:
+            text = "First Quarter"
+        elif moon_phase_percent < 50:
+            text = "Waxing Gibbous ({}%)".format(moon_phase_percent)
+        elif moon_phase_percent == 50:
+            text = "Full Moon"
+        elif moon_phase_percent < 75:
+            text = "Waning Gibbous ({}%)".format(moon_phase_percent)
+        elif moon_phase_percent == 75:
+            text = "Third Quarter"
+        elif moon_phase_percent < 100:
+            text = "Waning Crescent ({}%)".format(moon_phase_percent)
+        elif moon_phase_percent == 100:
+            text = "New Moon"
+        else:
+            text = "Unknown"
+
         surf_moon_icon = self.make_small_icon_text(weather["current"]["moon_phase_icon_path"], text, self.smaller_font)
         row4_height = surf_moon_icon.get_height()
 
