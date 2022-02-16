@@ -253,6 +253,7 @@ widget_location = bottom
 - Added 12/24-hour clock option to the digital clock
 - Cleaned up code
 - Fixed a couple bugs
+- Made the paddles in PongClock work a little better
 
 13-02-2022
 - Added the WorldClock plugin
