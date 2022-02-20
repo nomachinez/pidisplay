@@ -432,7 +432,7 @@ class SystemInfo(FullScreenPlugin, metaclass=Singleton):
                 for i in self.networking_nics[k]:
                     if i.family == socket.AF_INET:
                         local_ip = i.address
-                        subnet_mask = self.helper.get_subnet_mask_bits(i.netmask)
+                        subnet_mask = self.helper.get_subnet_mask_bits(i.netmask, self.debug)
                         break
                 if local_ip != "":
                     break
@@ -815,7 +815,7 @@ class SystemInfo(FullScreenPlugin, metaclass=Singleton):
             for j in self.networking_nics[i]:
                 if j.family == socket.AddressFamily.AF_INET:
                     ipv4_address = j.address
-                    subnet_mask = self.helper.get_subnet_mask_bits(j.netmask)
+                    subnet_mask = self.helper.get_subnet_mask_bits(j.netmask, self.debug)
                 if j.family == socket.AddressFamily.AF_INET6:
                     ipv6_address = j.address
             if ipv4_address != "" and subnet_mask != "":
@@ -962,10 +962,8 @@ class SystemInfo(FullScreenPlugin, metaclass=Singleton):
 
         if tick == 1:
             if self.timer == self.update_interval:
-                print("UPDATE--------------")
                 self.update_systeminfo()
                 self.timer = 0
-            print("UPDATE LIGHT--------------")
             self.update_systeminfo_light()
             self.timer += 1
         else:

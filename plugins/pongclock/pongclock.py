@@ -60,7 +60,7 @@ class PongClock(FullScreenPlugin, metaclass=Singleton):
                                                                      self.plugin_config.getint("min_vertical_velocity"),
                                                                      self.plugin_config.getint("max_horizontal_velocity"),
                                                                      self.plugin_config.getint("max_vertical_velocity"))
-        print("Velocity X,Y={},{}".format(random_velocity_x, random_velocity_y))
+        self.helper.log(self.debug, "Velocity X,Y={},{}".format(random_velocity_x, random_velocity_y))
 
         self.game_ball = Ball(self.debug, self.plugin_config, self.helper, (random_velocity_x, random_velocity_y), self.canvas.get_width(), self.canvas.get_height())
 
@@ -163,7 +163,7 @@ class PongClock(FullScreenPlugin, metaclass=Singleton):
                                                                          self.plugin_config.getint("max_horizontal_velocity"),
                                                                          self.plugin_config.getint("max_vertical_velocity"))
 
-            print("Velocity X,Y={},{}".format(random_velocity_x, random_velocity_y))
+            self.helper.log(self.debug, "Velocity X,Y={},{}".format(random_velocity_x, random_velocity_y))
             self.game_ball.reset((random_velocity_x, random_velocity_y))
             self.left_paddle.reset()
             self.right_paddle.reset()

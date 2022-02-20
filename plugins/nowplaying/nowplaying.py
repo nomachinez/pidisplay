@@ -11,7 +11,7 @@ import threading
 import time
 import pygame
 import requests
-from spotipy import SpotifyPKCE, Spotify, CacheFileHandler
+from spotipy import SpotifyPKCE, Spotify, CacheFileHandler, oauth2
 from PIL import Image, ImageFilter, ImageEnhance
 
 from lib.fullscreen_plugin import FullScreenPlugin
@@ -48,6 +48,8 @@ class NowPlaying(FullScreenPlugin, metaclass=Singleton):
         self.starting_y = 0
         self.info_width = 0
         self.x_after_album = 0
+
+        self.spotify_error = ""
 
         self.client_id = self.plugin_config["client_id"]
         self.username = self.plugin_config["username"]
@@ -89,33 +91,50 @@ class NowPlaying(FullScreenPlugin, metaclass=Singleton):
         else:
             self.canvas.blit(self.background, (0, 0))
 
-        if self.image is not None:
-            self.canvas.blit(self.image, (0, 0))
+        self.canvas.blit(self.image, (0, 0))
 
-            # blit the progress bar
-            if self.track_info is not None and self.track_info.id != "":
-                surf_progress_bar = pygame.Surface((self.track_info.album_img.get_width() + self.margin_x + self.info_width, self.progress_bar_height))
-                surf_progress_bar.fill(self.track_info.background_color)
-                pygame.draw.rect(surf_progress_bar, self.track_info.foreground_color,
-                                 (0, 0, surf_progress_bar.get_width(), surf_progress_bar.get_height()), 1)
+        # blit the progress bar
+        if self.track_info is not None and self.track_info.id != "":
+            surf_progress_bar = pygame.Surface((self.track_info.album_img.get_width() + self.margin_x + self.info_width, self.progress_bar_height))
+            surf_progress_bar.fill(self.track_info.background_color)
+            pygame.draw.rect(surf_progress_bar, self.track_info.foreground_color,
+                             (0, 0, surf_progress_bar.get_width(), surf_progress_bar.get_height()), 1)
 
-                if self.track_info.track_duration > 0:
-                    width = (self.track_info.track_position / self.track_info.track_duration) * surf_progress_bar.get_width()
-                    pygame.draw.rect(surf_progress_bar, self.track_info.foreground_color, (0, 0, width, surf_progress_bar.get_height()))
+            if self.track_info.track_duration > 0:
+                width = (self.track_info.track_position / self.track_info.track_duration) * surf_progress_bar.get_width()
+                pygame.draw.rect(surf_progress_bar, self.track_info.foreground_color, (0, 0, width, surf_progress_bar.get_height()))
 
-                self.image.blit(surf_progress_bar, (self.starting_x, self.starting_y + self.track_info.album_img.get_height() + self.margin_y))
+            self.image.blit(surf_progress_bar, (self.starting_x, self.starting_y + self.track_info.album_img.get_height() + self.margin_y))
+        else:
+            # Nothing is playing
+            surf_message = self.title_font.render("Nothing is playing!", True, self.light_color)
+            self.canvas.blit(surf_message, (self.canvas.get_width() / 2 - surf_message.get_width() / 2, self.canvas.get_height() / 2 - surf_message.get_height()/2))
+
+        if self.spotify_error:
+            surf_error1 = self.title_font.render("There was a problem connecting to Spotify ({}).".format(self.spotify_error), True, self.light_color)
+            surf_error2 = self.title_font.render("Did you follow the instructions to set up the Spotify client?", True, self.light_color)
+            self.canvas.blit(surf_error1, (self.canvas.get_width()/2 - surf_error1.get_width()/2, self.canvas.get_height()/2 - surf_error1.get_height()))
+            self.canvas.blit(surf_error2, (self.canvas.get_width() / 2 - surf_error2.get_width() / 2, self.canvas.get_height() / 2))
 
     def update_now_playing_surface(self):
-        if self.track_info is not None:
+        if self.track_info is None:
+            if self.switch_next_plugin_when_nothing_is_playing:
+                self.READY_TO_SWITCH = True
+                self.helper.log(self.debug, "Nothing is playing; switch away!")
+            else:
+                self.helper.log(self.debug, "Nothing is playing but we're not switching1!")
+        else:
             if self.track_info.id == "":
                 self.image.fill(self.background_color)
                 surf_error_text = self.title_font.render("Nothing is playing!", True, self.foreground_notplaying)
                 self.image.blit(surf_error_text, (self.image.get_width()/2 - surf_error_text.get_width()/2, self.image.get_height()/2 - surf_error_text.get_height()/2))
                 if self.switch_next_plugin_when_nothing_is_playing:
                     self.READY_TO_SWITCH = True
-                    self.helper.log(self.debug, "Nothing is playing, switch away!")
+                    self.helper.log(self.debug, "Nothing is playing; switch away!")
+                else:
+                    self.helper.log(self.debug, "Nothing is playing but we're not switching2!")
             else:
-                print("Track info is set! Building surfaces for {}".format(self.track_info.track_name))
+                self.helper.log(self.debug, "Track info is set! Building surfaces for {}".format(self.track_info.track_name))
                 if self.track_info.background is not None:
                     self.image.blit(self.track_info.background, (0, 0))
                 else:
@@ -293,7 +312,18 @@ class NowPlaying(FullScreenPlugin, metaclass=Singleton):
                                          state=state, redirect_uri=redirect_uri, cache_handler=handler)
         sp = Spotify(client_credentials_manager=credential_manager)
 
-        results = sp.current_playback(additional_types="track,episode")
+        error = None
+        results = None
+        try:
+            results = sp.current_playback(additional_types="track,episode")
+        except oauth2.SpotifyOauthError as err:
+            error = err.error
+
+        if error:
+            self.spotify_error = error
+            return
+
+        self.spotify_error = ""
 
         is_same_id = False
         lock = threading.Lock()
@@ -302,9 +332,9 @@ class NowPlaying(FullScreenPlugin, metaclass=Singleton):
         new_id = ""
         if self.track_info is not None and results is not None and len(results) > 0 and "item" in results and results["item"] is not None and "id" in results["item"]:
             new_id = results["item"]["id"]
-            print("...new ID: {}".format(new_id))
+            self.helper.log(self.debug, "...new ID: {}".format(new_id))
             if self.track_info.is_same_track(new_id) and self.track_info.is_playing == results["is_playing"]:
-                print("IDs are the same... updating.")
+                self.helper.log(self.debug, "IDs are the same... updating.")
                 self.track_info.update(results)
                 is_same_id = True
         lock.release()
@@ -314,20 +344,20 @@ class NowPlaying(FullScreenPlugin, metaclass=Singleton):
 
         lock = threading.Lock()
         lock.acquire()
-        print("IDs are not the same ({} != {}).... refreshing".format(old_id, new_id))
+        self.helper.log(self.debug, "IDs are not the same ({} != {}).... refreshing".format(old_id, new_id))
 
         lock.release()
 
         if results is not None and len(results) > 0 and "item" in results and results["item"] is not None and "type" in results["item"]:
             if results["item"]["type"] == "track":
-                track_item = TrackItem(self.plugin_config)
+                track_item = TrackItem(self.plugin_config, self.helper, self.debug)
             elif results["item"]["type"] == "episode":
-                track_item = EpisodeItem(self.plugin_config)
+                track_item = EpisodeItem(self.plugin_config, self.helper, self.debug)
             else:
-                print("item")
-                track_item = TrackItem(self.plugin_config)
+                self.helper.log(self.debug, "item")
+                track_item = TrackItem(self.plugin_config, self.helper, self.debug)
         else:
-            track_item = Item(self.plugin_config)
+            track_item = Item(self.plugin_config, self.helper, self.debug)
 
         if results is not None:
             track_item.parse(results, sp, self.screen_width, self.screen_height, self.album_img_height, self.plugin_config)
@@ -343,7 +373,7 @@ class NowPlaying(FullScreenPlugin, metaclass=Singleton):
 
 
 class Item:
-    def __init__(self, plugin_config):
+    def __init__(self, plugin_config, helper, debug):
         self.id = ""
         self.context_type = ""
         self.context_image = None
@@ -378,6 +408,8 @@ class Item:
         self.foreground_color = eval(plugin_config["foreground_notplaying"])
 
         self.blur = 28
+        self.helper = helper
+        self.debug = debug
 
     def is_same_track(self, new_id):
         if new_id == self.id:
@@ -511,7 +543,7 @@ class Item:
             self.album_img = pygame.Surface((album_height, album_height))
             self.album_img.fill(background)
             self.album_img_paused = self.make_paused_album_image(self.album_img)
-            print("Background is empty!")
+            self.helper.log(self.debug, "Background is empty!")
 
         if (self.context_type == "album" or self.context_type == "show") and self.context_image is None:
             self.context_image = self.album_img.copy()
@@ -520,8 +552,8 @@ class Item:
 
 
 class EpisodeItem(Item):
-    def __init__(self, plugin_config):
-        super(EpisodeItem, self).__init__(plugin_config)
+    def __init__(self, plugin_config, helper, debug):
+        super(EpisodeItem, self).__init__(plugin_config, helper, debug)
         self.type = "episode"
 
     def parse(self, sp_object, sp, screen_width, screen_height, album_height, plugin_config):
@@ -550,8 +582,8 @@ class EpisodeItem(Item):
 
 
 class TrackItem(Item):
-    def __init__(self, plugin_config):
-        super(TrackItem, self).__init__(plugin_config)
+    def __init__(self, plugin_config, helper, debug):
+        super(TrackItem, self).__init__(plugin_config, helper, debug)
         self.type = "track"
 
         self.track_number = 0

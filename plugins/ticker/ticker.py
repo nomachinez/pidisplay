@@ -31,7 +31,7 @@ class Ticker(DirtySprite, WidgetPlugin):
         self.pos_x = 0
         self.ticker_buffer = 40
 
-        print("Ticker: {} x {}".format(self.screen_width, self.screen_height))
+        self.helper.log(self.debug, "Ticker: {} x {}".format(self.screen_width, self.screen_height))
 
         font_size = 1
         self.ticker_border_size = 1
@@ -44,7 +44,7 @@ class Ticker(DirtySprite, WidgetPlugin):
         font_size -= 1
         self.font = pygame.font.SysFont(self.plugin_config["default_font_face"], font_size)
 
-        print("set font size to {}".format(font_size))
+        self.helper.log(self.debug, "set font size to {}".format(font_size))
 
         self.helper.log(self.debug, "Found a font size of {}".format(font_size))
         self.border_brighten_amount = 32
@@ -72,12 +72,17 @@ class Ticker(DirtySprite, WidgetPlugin):
                 current_price = self.tickers_info[i]["currentPrice"] \
                     if "currentPrice" in self.tickers_info[i] else self.tickers_info[i]["regularMarketPrice"]
 
-                self.helper.log(self.debug, "Current price: {} Open Price {}".format(current_price, self.tickers_info[i]["open"]))
+                if "open" in self.tickers_info[i]:
+                    open_price = self.tickers_info[i]["open"]
+                else:
+                    open_price = -1
 
-                if current_price < self.tickers_info[i]["open"]:
+                self.helper.log(self.debug, "Current price: {} Open Price {}".format(current_price, open_price))
+
+                if current_price < open_price:
                     fg_color = self.down_foreground
                     bg_color = self.down_background
-                elif current_price > self.tickers_info[i]["open"]:
+                elif current_price > open_price:
                     fg_color = self.up_foreground
                     bg_color = self.up_background
                 else:

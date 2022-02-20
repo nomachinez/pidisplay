@@ -23,7 +23,7 @@ class Clok(DirtySprite, WidgetPlugin):
 
         self.marker_color = eval(self.plugin_config["needle_color"])
 
-        print("Clok: {} x {}".format(self.canvas.get_width(), self.screen_height))
+        self.helper.log(self.debug, "Clok: {} x {}".format(self.canvas.get_width(), self.screen_height))
 
         i = 1
         locations = []

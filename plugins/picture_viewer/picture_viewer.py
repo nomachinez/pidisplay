@@ -42,7 +42,7 @@ class PictureViewer(FullScreenPlugin, metaclass=Singleton):
         self.extensions = ['png', 'jpg', 'gif']
         self.update_pics()
 
-        print("Screen size: {}x{}".format(self.screen_width, self.screen_height))
+        self.helper.log(self.debug, "Screen size: {}x{}".format(self.screen_width, self.screen_height))
 
     def update_pics(self):
         self.pictures = []

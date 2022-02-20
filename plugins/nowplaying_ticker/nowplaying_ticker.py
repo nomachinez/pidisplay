@@ -3,8 +3,6 @@ Now Playing (Ticker)
 (c) Steven Babineau - babineau@gmail.com
 2022
 """
-from __future__ import print_function
-
 import datetime
 import hashlib
 import threading

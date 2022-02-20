@@ -132,8 +132,8 @@ def main():
     message_step = 255.0 / (fps * appconfig.getint("message_popup_fade_time"))
 
     full_screen_rect = pygame.Rect(0, top_offset, canvas.get_width(), canvas.get_height() - top_offset - bottom_offset)
-    print(full_screen_rect)
-    print("WxH = {}x{}".format(canvas.get_width(), canvas.get_height()))
+    helper.log(debug, str(full_screen_rect))
+    helper.log(debug, "WxH = {}x{}".format(canvas.get_width(), canvas.get_height()))
     full_screen_canvas_small = canvas.subsurface(full_screen_rect)
 
     if len(full_screen_plugins) > 0:

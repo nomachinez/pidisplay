@@ -171,12 +171,12 @@ def get_time_delta_string(now, past, want_seconds=True, want_ago=True, want_shor
     return result
 
 
-def get_subnet_mask_bits(subnet_mask):
+def get_subnet_mask_bits(subnet_mask, debug):
     cidr = 0
     try:
         socket.inet_aton(subnet_mask)
         cidr = ipaddress.IPv4Network("0.0.0.0/{}".format(subnet_mask)).prefixlen
     except Exception:
-        print("BAD SUBNET MASK: {}".format(subnet_mask))
+        log(debug, "BAD SUBNET MASK: {}".format(subnet_mask))
 
     return cidr

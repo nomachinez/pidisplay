@@ -536,7 +536,7 @@ class PiHole(FullScreenPlugin, metaclass=Singleton):
             if start_datetime.timestamp() <= int(i) < end_datetime.timestamp():
                 sum_ads_hour3 += int(self.pihole_status["ads_over_time"][i])
 
-        print("ADS: {}-{}-{}-{}".format(sum_ads_hour0, sum_ads_hour1, sum_ads_hour2, sum_ads_hour3))
+        self.helper.log(self.debug, "ADS: {}-{}-{}-{}".format(sum_ads_hour0, sum_ads_hour1, sum_ads_hour2, sum_ads_hour3))
         ads_bargraph = self.build_bargraph((self.screen_width - self.screen_margin*2)/2 - x_spacer_small,
                                            self.screen_height - self.screen_margin - current_y,
                                            [{now_fmt: sum_ads_hour0}, {now_minus_one_fmt: sum_ads_hour1}, {now_minus_two_fmt: sum_ads_hour2}, {now_minus_three_fmt: sum_ads_hour3}],
@@ -574,7 +574,7 @@ class PiHole(FullScreenPlugin, metaclass=Singleton):
             if start_datetime.timestamp() <= int(i) < end_datetime.timestamp():
                 sum_domains_hour3 += int(self.pihole_status["domains_over_time"][i])
 
-        print("DOMAINS: {}-{}-{}-{}".format(sum_domains_hour0, sum_domains_hour1, sum_domains_hour2, sum_domains_hour3))
+        self.helper.log(self.debug, "DOMAINS: {}-{}-{}-{}".format(sum_domains_hour0, sum_domains_hour1, sum_domains_hour2, sum_domains_hour3))
 
         domains_bargraph = self.build_bargraph((self.screen_width - self.screen_margin*2)/2 - x_spacer_small,
                                                self.screen_height - self.screen_margin - current_y,
@@ -591,7 +591,7 @@ class PiHole(FullScreenPlugin, metaclass=Singleton):
 
     def build_bargraph(self, graph_width, graph_height, values, title):
 
-        print("WxH = {}x{}".format(graph_width, graph_height))
+        self.helper.log(self.debug, "WxH = {}x{}".format(graph_width, graph_height))
         x_spacer = 10
         margin = 10
         bar_width = (graph_width - margin*2 - (len(values)-1)*x_spacer) / len(values)
