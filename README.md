@@ -106,13 +106,14 @@ git clone https://github.com/nomachinez/pidisplay.git
 ````
 4. Edit the ./pidisplay/config.ini file to your liking.  Some notes about the config.ini file(s):
    * All settings in each of the plugins can be overridden in the main config.ini file.
+   * Each plugin section in the main config.ini file needs a class setting pointing to the python class name for that plugin. The section name can be anything you want, but the class setting is not optional and must match exactly to the python class name for that plugin.
    * Take a look at the config.ini file in each plugin directory for all the options available to you for each plugin.
    * Some plugins (e.g., openweathermap, nowplaying) require you to enter an api key or client id/username, which should be entered in the ./pidisplay/config.ini file.
-   * Any widgets need a widget_location = top or widget_location = bottom in the main config.ini file for it to show up.
+   * Widgets need a widget_location = top or widget_location = bottom in the main config.ini file for it to show up on your display.
    * Plugins will be loaded and cycled through in the order present in the main config.ini file.
    * If you want a particular plugin to stay on the screen longer/shorter than the default "autoswitch_timer" value, enter autoswitch_timer = # in the section for that plugin with the number of seconds you want.
-   * You can load a plugin multiple times by adding it multiple times in the main config file. Just make sure to name it something different. The options can be managed separately as well (e.g., 2 tickers with different symbols and speeds)
-   * To disable a plugin, remove it or comment it out in the main config.ini file.
+   * You can load a plugin multiple times by adding it multiple times in the main config file. Just make sure to name it something different. The options can be managed separately as well (e.g., 2 tickers with different symbols and speeds). See [below](#Instructions-for-adding-multiples-of-the-same-plugin) for an example.
+   * To disable a plugin, remove the settings or comment the settings out in the main config.ini file.
 
 5. The settings in the main config.ini file are great for my [1360x768 7" screen](https://www.amazon.com/Eviciv-Portable-Monitor-Display-1024X600/dp/B07L6WT77H). You may want to adjust them if your screen is different.  There are many settings that can be overridden in here but the ones to look at first are:
 
@@ -210,7 +211,8 @@ reboot
 6) Open up the main config.ini file in ./pidisplay/config.ini
 7) Copy the section you want to duplicate and paste it back in, so now you have 2 of them.
 8) Change the section title of the second one to something different
-9) Modify any settings you choose but keep the "class" setting the same
+9) Modify any settings you choose but keep the "class" setting the same.
+
 e.g.
 ````commandline
 .....SNIP......
@@ -224,7 +226,7 @@ widget_location = top
 ......SNIP......
 
 ````
-becomes
+becomes something like
 ````commandline
 ......SNIP......
 
@@ -247,6 +249,10 @@ widget_location = bottom
 - Fix the paddles in the pongclock. The paddles track the ball correctly only about 95% of the time.
 
 # Changelog
+20-02-2022
+- Cleaned up errant print()s
+- Bugfixes in the nowplaying and ticker modules that sometimes caused unhandled exceptions.
+
 15-02-2022
 - Added location to weather plugin
 - Add moon phase to weather
