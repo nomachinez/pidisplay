@@ -141,7 +141,6 @@ class NewsFeed(FullScreenPlugin, metaclass=Singleton):
         thread_timer.start()
 
     def update_news_thread(self):
-
         news = {}
         i = 1
         for param in list(self.plugin_config):

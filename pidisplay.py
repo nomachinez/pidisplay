@@ -201,9 +201,8 @@ def main():
                         surf_message = pygame.Surface((surf_message_text.get_width() + 40,  # margin
                                                        surf_message_text.get_height() + 40))
                         surf_message.fill((32, 32, 32))
-                        surf_message.blit(surf_message_text, (surf_message.get_width()/2 - surf_message_text.get_width()/2,
-                                                              surf_message.get_height()/2 -
-                                                              surf_message_text.get_height()/2))
+                        surf_message.blit(surf_message_text, (int(surf_message.get_width()/2 - surf_message_text.get_width()/2),
+                                                              int(surf_message.get_height()/2 - surf_message_text.get_height()/2)))
                         pygame.draw.rect(surf_message, (200, 200, 200),
                                          (0, 0, surf_message.get_width(), surf_message.get_height()), 3)
 
@@ -212,8 +211,7 @@ def main():
                         else:
                             surf_message.set_alpha(opacity)
 
-                        canvas.blit(surf_message, (canvas.get_width()/2 - surf_message.get_width()/2,
-                                                   canvas.get_height() - surf_message.get_height() - 50))  # bottom margin
+                        canvas.blit(surf_message, (int(canvas.get_width()/2 - surf_message.get_width()/2), canvas.get_height() - surf_message.get_height() - 50))  # bottom margin
 
                         my_event = pygame.event.Event(helper.EVENT_MESSAGE, message=[message, opacity])
                         pygame.event.post(my_event)
