@@ -190,17 +190,15 @@ class NowPlaying(FullScreenPlugin, metaclass=Singleton):
 
                 # CONTEXT - "artist", "playlist", "album", "show"
                 if self.track_info.context_type == "artist":
-                    context_text = u"Artist{} {}".format("s" if len(artists) > 1 else "", ", ".join(artists))
+                    context_text = "Artist{} {}".format("s" if len(artists) > 1 else "", ", ".join(artists))
                 elif self.track_info.context_type == "playlist":
-                    context_text = u"Playlist {}".format(self.track_info.playlist_name)
+                    context_text = "Playlist {}".format(self.track_info.playlist_name)
                 elif self.track_info.context_type == "album":
-                    context_text = u"Album {}".format(self.track_info.album_name)
+                    context_text = "Album {}".format(self.track_info.album_name)
                 elif self.track_info.context_type == "show":
-                    context_text = u"Show {}".format(self.track_info.album_name)
+                    context_text = "Show {}".format(self.track_info.album_name)
                 else:
-                    context_text = u"Song {}".format(self.track_info.track_name)
-
-                print("CONTEXT TEXT: {}".format(context_text))
+                    context_text = "Song {}".format(self.track_info.track_name)
 
                 surf_context_text = self.info_font.render(context_text, True, foreground)
 
