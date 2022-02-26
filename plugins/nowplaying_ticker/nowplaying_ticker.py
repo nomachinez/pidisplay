@@ -9,6 +9,7 @@ import threading
 import time
 
 import pygame
+import pygame.ftfont
 import os
 
 from pygame.sprite import DirtySprite
@@ -39,13 +40,13 @@ class NowPlayingTicker(DirtySprite, WidgetPlugin):
         self.ticker_border_size = 1
         self.margin_y = 2
         self.margin_x = 6
-        self.font = pygame.font.SysFont(self.plugin_config["default_font_face"], font_size)
+        self.font = pygame.ftfont.SysFont(self.plugin_config["default_font_face"], font_size)
         while self.font.size("XXXX")[1] + (self.ticker_border_size+self.margin_y)*2 < self.screen_height:
             font_size += 1
-            self.font = pygame.font.SysFont(self.plugin_config["default_font_face"], font_size)
+            self.font = pygame.ftfont.SysFont(self.plugin_config["default_font_face"], font_size)
 
         font_size -= 1
-        self.font = pygame.font.SysFont(self.plugin_config["default_font_face"], font_size)
+        self.font = pygame.ftfont.SysFont(self.plugin_config["default_font_face"], font_size)
 
         self.helper.log(self.debug, "Found a font size of {}".format(font_size))
 

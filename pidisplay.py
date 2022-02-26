@@ -10,6 +10,7 @@ import time
 import importlib
 import datetime
 import pygame
+import pygame.ftfont
 
 from lib import helper
 from lib.fullscreen_plugin import FullScreenPlugin
@@ -23,6 +24,9 @@ from lib.widget_plugin import WidgetPlugin
 def main():
     """ Main is what Main is """
     pygame.init()
+    if not pygame.ftfont.get_init():
+        pygame.ftfont.init()
+
     pygame.display.set_caption('PiDisplay')
     pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN])
 

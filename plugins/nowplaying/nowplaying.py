@@ -10,6 +10,7 @@ import os
 import threading
 import time
 import pygame
+import pygame.ftfont
 import requests
 from spotipy import SpotifyPKCE, Spotify, CacheFileHandler, oauth2
 from PIL import Image, ImageFilter, ImageEnhance
@@ -39,8 +40,8 @@ class NowPlaying(FullScreenPlugin, metaclass=Singleton):
         self.timer = -1
         self.image = pygame.Surface((self.screen_width, self.screen_height))
 
-        self.title_font = pygame.font.SysFont(self.plugin_config["default_font_face"], self.plugin_config.getint("title_font_size"))
-        self.info_font = pygame.font.SysFont(self.plugin_config["default_font_face"], self.plugin_config.getint("info_font_size"))
+        self.title_font = pygame.ftfont.SysFont(self.plugin_config["default_font_face"], self.plugin_config.getint("title_font_size"))
+        self.info_font = pygame.ftfont.SysFont(self.plugin_config["default_font_face"], self.plugin_config.getint("info_font_size"))
 
         self.background = None
 
@@ -189,15 +190,17 @@ class NowPlaying(FullScreenPlugin, metaclass=Singleton):
 
                 # CONTEXT - "artist", "playlist", "album", "show"
                 if self.track_info.context_type == "artist":
-                    context_text = "Artist{} {}".format("s" if len(artists) > 1 else "", ", ".join(artists))
+                    context_text = u"Artist{} {}".format("s" if len(artists) > 1 else "", ", ".join(artists))
                 elif self.track_info.context_type == "playlist":
-                    context_text = "Playlist {}".format(self.track_info.playlist_name)
+                    context_text = u"Playlist {}".format(self.track_info.playlist_name)
                 elif self.track_info.context_type == "album":
-                    context_text = "Album {}".format(self.track_info.album_name)
+                    context_text = u"Album {}".format(self.track_info.album_name)
                 elif self.track_info.context_type == "show":
-                    context_text = "Show {}".format(self.track_info.album_name)
+                    context_text = u"Show {}".format(self.track_info.album_name)
                 else:
-                    context_text = "Song {}".format(self.track_info.track_name)
+                    context_text = u"Song {}".format(self.track_info.track_name)
+
+                print("CONTEXT TEXT: {}".format(context_text))
 
                 surf_context_text = self.info_font.render(context_text, True, foreground)
 
