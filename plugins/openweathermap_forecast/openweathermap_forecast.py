@@ -168,6 +168,8 @@ class OpenWeatherMap(FullScreenPlugin, metaclass=Singleton):
                                  (self.screen_width - _line_buffer, self.screen_height / 2 - 1), _line_width)
 
             self.last_canvas = self.canvas.copy()
+
+            self.weather_updated = False
         else:
             if self.last_canvas is not None:
                 self.canvas.blit(self.last_canvas, (0, 0))
@@ -713,6 +715,7 @@ class OpenWeatherMap(FullScreenPlugin, metaclass=Singleton):
                 weather["hourly"].update({i["dt"]: hourly})
 
         moon_phase_icon_path = ""
+        moon_phase_percent = -1
         if "moon_phase" in weather["current"]:
             moon_phase_percent = int(weather["current"]["moon_phase"] * 100)
             moon_phase_key = "weather_icons_moon_phase_{0:03d}".format(moon_phase_percent)
@@ -721,12 +724,18 @@ class OpenWeatherMap(FullScreenPlugin, metaclass=Singleton):
             else:
                 # try to figure it out
                 if moon_phase_percent > 0:
-                    for j in range(moon_phase_percent, 0, -1):
+                    for j in range(moon_phase_percent, -1, -1):
                         moon_phase_key = "weather_icons_moon_phase_{0:03d}".format(j)
                         if moon_phase_key in self.plugin_config:
                             moon_phase_icon_path = os.path.join(self.icons_folder, "moon_phases", self.plugin_config[moon_phase_key])
                             break
+        else:
+            self.helper.log(self.debug, "moon_phase not in weather[current]")
+
         if moon_phase_icon_path:
             weather["current"].update({"moon_phase_icon_path": moon_phase_icon_path})
+        else:
+            self.helper.log(self.debug, "Couldn't find moon phase icon for moon_phase: {} ({})".format(weather["current"]["moon_phase"], moon_phase_percent))
+            weather["current"].update({"moon_phase_icon_path": ""})
 
         return weather
