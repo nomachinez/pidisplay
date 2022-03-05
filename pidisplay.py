@@ -11,6 +11,7 @@ import importlib
 import datetime
 import pygame
 import pygame.ftfont
+from enum import Enum
 
 from lib import helper
 from lib.fullscreen_plugin import FullScreenPlugin
@@ -19,6 +20,11 @@ from lib.plugin import Plugin, Singleton
 import configparser
 
 from lib.widget_plugin import WidgetPlugin
+
+
+class Direction(Enum):
+    FORWARD = "forward"
+    BACKWARDS = "backwards"
 
 
 def main():
@@ -143,7 +149,9 @@ def main():
     if len(full_screen_plugins) > 0:
         current_plugin, tick, full_screen_plugin, start_time = switch_plugin(current_plugin,
                                                                              full_screen_plugins,
-                                                                             canvas, full_screen_canvas_small)
+                                                                             canvas,
+                                                                             full_screen_canvas_small,
+                                                                             Direction.FORWARD)
         while running:
             clock.tick(fps)
 
@@ -170,6 +178,18 @@ def main():
                         update = not update
                     elif event.key == pygame.K_ESCAPE or event.key == pygame.K_q:
                         running = False
+                    elif event.key == pygame.K_RIGHT:
+                        current_plugin, tick, full_screen_plugin, start_time = switch_plugin(current_plugin,
+                                                                                             full_screen_plugins,
+                                                                                             canvas,
+                                                                                             full_screen_canvas_small,
+                                                                                             Direction.FORWARD)
+                    elif event.key == pygame.K_LEFT:
+                        current_plugin, tick, full_screen_plugin, start_time = switch_plugin(current_plugin,
+                                                                                             full_screen_plugins,
+                                                                                             canvas,
+                                                                                             full_screen_canvas_small,
+                                                                                             Direction.BACKWARDS)
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     timer_set = False
                     if doubleclick_timer == 0:
@@ -180,7 +200,9 @@ def main():
                         # Switch plugins
                         current_plugin, tick, full_screen_plugin, start_time = switch_plugin(current_plugin,
                                                                                              full_screen_plugins,
-                                                                                             canvas, full_screen_canvas_small)
+                                                                                             canvas,
+                                                                                             full_screen_canvas_small,
+                                                                                             Direction.FORWARD)
                         timer_set = False
                     if timer_set:
                         doubleclick_timer = 1
@@ -233,8 +255,11 @@ def main():
                     pygame.image.save(canvas, screenshot_file)
                     helper.log(debug, "Saved screenshot to {}".format(screenshot_file))
 
-                current_plugin, tick, full_screen_plugin, start_time = switch_plugin(current_plugin, full_screen_plugins,
-                                                                                     canvas, full_screen_canvas_small)
+                current_plugin, tick, full_screen_plugin, start_time = switch_plugin(current_plugin,
+                                                                                     full_screen_plugins,
+                                                                                     canvas,
+                                                                                     full_screen_canvas_small,
+                                                                                     Direction.FORWARD)
     else:
         print("Enable a plugin first (make sure to specify the class key in config.ini)!")
 
@@ -242,10 +267,17 @@ def main():
     sys.exit()
 
 
-def switch_plugin(current_plugin, full_screen_plugins, canvas, canvas_small):
-    current_plugin += 1
-    if current_plugin == len(full_screen_plugins):
-        current_plugin = 0
+def switch_plugin(current_plugin, full_screen_plugins, canvas, canvas_small, direction):
+    if direction == Direction.FORWARD:
+        current_plugin += 1
+        if current_plugin == len(full_screen_plugins):
+            current_plugin = 0
+    elif direction == Direction.BACKWARDS:
+        current_plugin -= 1
+        if current_plugin < 0:
+            current_plugin = len(full_screen_plugins) - 1
+    else:
+        raise ValueError("Incorrect direction specified while switching full screen plugins!")
 
     plugin_config_name = full_screen_plugins[current_plugin]["internal_name"]
     if plugin_config_name.getboolean("show_widgets"):

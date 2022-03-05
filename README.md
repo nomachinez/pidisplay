@@ -192,7 +192,12 @@ sudo raspi-config
 
 Now add the startup to your .bashrc
 ````commandline
-echo python3 ~/pidisplay/pidisplay.py >> /home/pi/.bashrc
+# Only run if we are logging in locally not through SSH
+TTY=`tty`
+if [[ "$TTY" =~ ^/dev/tty[0-9]+$ ]]; then
+  python3 pidisplay/pidisplay.py >>out.txt 2>>out2.txt
+fi
+
 ````
 
 Reboot
