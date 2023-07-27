@@ -60,7 +60,7 @@ use it you don't have to have it look like this.  They are shown here as example
 
 PongClock
 ![PongClock](screenshots/1.png "PongClock")
-Picture Viewer
+Picture Viewer (notmydog.exe)
 ![Picture Viewer](screenshots/2.png "Picture Viewer")
 Weather
 ![Weather](screenshots/3.png "Weather")
@@ -195,7 +195,7 @@ Now add the startup to your .bashrc
 # Only run if we are logging in locally not through SSH
 TTY=`tty`
 if [[ "$TTY" =~ ^/dev/tty[0-9]+$ ]]; then
-  python3 pidisplay/pidisplay.py >>out.txt 2>>out2.txt
+  python3 pidisplay/pidisplay.py >pidisplay_out.txt 2>pidisplay_errors.txt
 fi
 
 ````
@@ -252,8 +252,13 @@ widget_location = bottom
 
 # TODO
 - Fix the paddles in the pongclock. The paddles track the ball correctly only about 95% of the time.
+- The WorldClock text is covered up by the bottom ticker...
 
 # Changelog
+27-07-2023
+- Fixing more unhandled exceptions.
+- Updated and resubmited changes to AdminLTE for pihole to allow us to get multiple recently-blocked hosts back from the API
+
 20-02-2022
 - Cleaned up errant print()s
 - Bugfixes in the nowplaying and ticker modules that sometimes caused unhandled exceptions.
