@@ -77,7 +77,7 @@ class WorldClock(FullScreenPlugin, metaclass=Singleton):
                 size = WorldClock.COLORS_BIG
 
                 label_size = self.big_clock_font.get_height()
-                if not self.clocks[0]["label"]:
+                if not self.clocks[0]["label"] and not self.clocks[1]["label"]:
                     label_size = 0
 
                 w = (self.image.get_width() / 2) - (self.screen_margin * 2)

@@ -141,6 +141,7 @@ class PiHole(FullScreenPlugin, metaclass=Singleton):
         recently_blocked = set(self.pihole_status["recently_blocked"])
         for i in recently_blocked:
             surf = self.default_font.render(i, True, self.fg_color, self.recently_blocked_bg_color)
+            self.helper.log(self.debug, "PiHole: RecentlyBlocked text: '{}', width: {} widest: {}".format(i, surf.get_width(), blocked_widest))
             if blocked_widest < surf.get_width():
                 blocked_widest = surf.get_width()
             blocked_height += surf.get_height() + y_spacer_small
@@ -646,17 +647,19 @@ class PiHole(FullScreenPlugin, metaclass=Singleton):
         start_color = pygame.Vector3(64, 128, 64)
         end_color = pygame.Vector3(128, 200, 128)
 
-        steps = len(self.pihole_status["forward_destinations"]) - 2
+        steps = len(self.pihole_status["forward_destinations"]) - 1
         step = 1.0 / (steps + 1)
         lerp_value = step
         colors = []
+
         for i in self.pihole_status["forward_destinations"]:
             if i == "blocklist|blocklist":
                 colors.append({"name": i, "percent": self.pihole_status["forward_destinations"][i], "color": blacklist_color})
             elif i == "cache|cache":
                 colors.append({"name": i, "percent": self.pihole_status["forward_destinations"][i], "color": cache_color})
             else:
-                colors.append({"name": i, "percent": self.pihole_status["forward_destinations"][i], "color": start_color.lerp(end_color, lerp_value)})
+                my_start_color = start_color.lerp(end_color, lerp_value)
+                colors.append({"name": i, "percent": self.pihole_status["forward_destinations"][i], "color": my_start_color})
                 lerp_value += step
 
         surf = pygame.Surface((width, height + self.default_font.get_linesize() + y_spacer))
@@ -724,8 +727,10 @@ class PiHole(FullScreenPlugin, metaclass=Singleton):
             try:
                 r = requests.get("http://{}:{}/admin/api.php?recentBlocked={}&auth={}".format(self.server, self.pihole_server_http_port, self.recently_blocked_num_history, self.api_key))
                 try:
-                    results.update({"recently_blocked": r.json()})
+                    self.helper.log(self.debug, "PiHole: Getting Recently Blocked from JSON: {}".format(r.json()))
+                    results.update({"recently_blocked": r.json()["recent_blocked"]})
                 except:
+                    self.helper.log(self.debug, "PiHole: That didnt work! Getting Recently Blocked from text: {}".format(r.text))
                     results.update({"recently_blocked": r.text})
                 r.close()
             except requests.RequestException as e:
