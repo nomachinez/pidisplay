@@ -11,6 +11,7 @@ import requests
 import time
 import threading
 import locale
+import queue
 
 from pygame.sprite import DirtySprite
 
@@ -59,8 +60,10 @@ class Ticker(DirtySprite, WidgetPlugin):
         self.update_interval = self.plugin_config.getint("update_interval")
         self.tickers = eval(self.plugin_config["tickers"])
 
+        self.queue = queue.Queue()
+
     def refresh_tickers(self):
-        self.tickers_info = {}
+        #self.tickers_info = {}
         for i in self.tickers:
             self.download_ticker(i)
 
@@ -68,54 +71,59 @@ class Ticker(DirtySprite, WidgetPlugin):
         self.ticker_surfaces = []
         locale.setlocale(locale.LC_ALL, "")
 
-        lock = threading.Lock()
+        self.helper.log(self.debug, "Ticker: Number of queued items: {}".format(self.queue.qsize()))
+        while not self.queue.empty():
+            self.tickers_info.update(self.queue.get())
+            self.queue.task_done()
 
-        with lock:
-       	    for i in self.tickers_info:
-                if len(i) > 0:
-                    current_price = self.tickers_info[i]["current"]
-                    open_price = self.tickers_info[i]["last_open"]
+        self.helper.log(self.debug, "Ticker: Number of queued items after dumping: {}".format(self.queue.qsize()))
+        self.helper.log(self.debug, "Ticker: Number of tickers: {}".format(len(self.tickers_info)))
 
-                    self.helper.log(self.debug, "Current price: {} Open Price {}".format(current_price, open_price))
+        for i in self.tickers_info:
+            if len(i) > 0:
+                current_price = self.tickers_info[i]["current"]
+                open_price = self.tickers_info[i]["last_open"]
 
-                    if current_price < open_price:
-                        fg_color = self.down_foreground
-                        bg_color = self.down_background
-                    elif current_price > open_price:
-                        fg_color = self.up_foreground
-                        bg_color = self.up_background
-                    else:
-                        fg_color = self.foreground
-                        bg_color = self.background
+                self.helper.log(self.debug, "Ticker: Symbol: {} Current price: {} Open Price {}".format(self.tickers_info[i]["symbol"], current_price, open_price))
 
-                    try:
-                        current_price = float(current_price)
-                    except ValueError:
-                        current_price = -1.0
+                if current_price < open_price:
+                    fg_color = self.down_foreground
+                    bg_color = self.down_background
+                elif current_price > open_price:
+                    fg_color = self.up_foreground
+                    bg_color = self.up_background
+                else:
+                    fg_color = self.foreground
+                    bg_color = self.background
 
-                    surf_ticker_text = self.font.render("{} {:.2f}".format(self.tickers_info[i]["symbol"], float(current_price)), True, fg_color)
-                    surf_ticker = pygame.Surface((self.ticker_buffer + surf_ticker_text.get_width(), self.screen_height))
+                try:
+                    current_price = float(current_price)
+                except ValueError:
+                    current_price = -1.0
+
+                surf_ticker_text = self.font.render("{} {:.2f}".format(self.tickers_info[i]["symbol"], float(current_price)), True, fg_color)
+                surf_ticker = pygame.Surface((self.ticker_buffer + surf_ticker_text.get_width(), self.screen_height))
     
-                    surf_ticker.fill(bg_color)
+                surf_ticker.fill(bg_color)
 
-                    r = bg_color[0] + self.border_brighten_amount
-                    if r > 255:
-                        r = 255
-                    g = bg_color[1] + self.border_brighten_amount
-                    if g > 255:
-                        g = 255
-                    b = bg_color[1] + self.border_brighten_amount
-                    if b > 255:
-                        b = 255
+                r = bg_color[0] + self.border_brighten_amount
+                if r > 255:
+                    r = 255
+                g = bg_color[1] + self.border_brighten_amount
+                if g > 255:
+                    g = 255
+                b = bg_color[1] + self.border_brighten_amount
+                if b > 255:
+                    b = 255
 
-                    pygame.draw.rect(surf_ticker, (r, g, b),
-                                     (0, 0, surf_ticker.get_width(), surf_ticker.get_height()),
-                                     self.ticker_border_size)
+                pygame.draw.rect(surf_ticker, (r, g, b),
+                                 (0, 0, surf_ticker.get_width(), surf_ticker.get_height()),
+                                 self.ticker_border_size)
 
-                    surf_ticker.blit(surf_ticker_text, (surf_ticker.get_width()/2 - surf_ticker_text.get_width()/2,
-                                                        surf_ticker.get_height()/2 - surf_ticker_text.get_height()/2))
-    
-                    self.ticker_surfaces.append(surf_ticker)
+                surf_ticker.blit(surf_ticker_text, (surf_ticker.get_width()/2 - surf_ticker_text.get_width()/2,
+                                                    surf_ticker.get_height()/2 - surf_ticker_text.get_height()/2))
+
+                self.ticker_surfaces.append(surf_ticker)
 
     def update(self, tick, fps):
         if int(time.time() * 1000) - self.timer > self.update_interval * 1000 * 60:
@@ -169,12 +177,10 @@ class Ticker(DirtySprite, WidgetPlugin):
 
         currentPrice = history_results["Close"].iloc[-1]
 
-        lock = threading.Lock()
+        self.queue.put({ticker: {"current":currentPrice, "last_open":results["open"], "symbol":results["symbol"]}})
+        #self.tickers_info.update({ticker: {"current":currentPrice, "last_open":results["open"], "symbol":results["symbol"]}})
 
-        with lock:
-            self.tickers_info.update({ticker: {"current":currentPrice, "last_open":results["open"], "symbol":results["symbol"]}})
-
-            self.tickers_updated = True
-            self.helper.log(self.debug, "done getting ticker {}".format(ticker))
+        self.tickers_updated = True
+        self.helper.log(self.debug, "done getting ticker {}".format(ticker))
 
 
